@@ -1,0 +1,17 @@
+{
+  "name": "webdev_project",
+  "version": "1.0.0",
+  "description": "2023-24 CSC2062 PROJECT (TRADECARD)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "css.gg": "^2.1.1",
+    "flowbite": "^2.3.0",
+    "uikit": "^3.19.2"
+  }
+}
