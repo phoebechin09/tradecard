@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cards Page</title>
+    <link href="https://css.gg/css" rel="stylesheet" />
+    <script src="/js/uikit.min.js"></script>
+    <link rel="stylesheet" href="/css/uikit.min.css">
+    <script src="/js/js/uikit-icons.min.js"></script>
+    <script src="/js/uikit-icons.js"></script>
+</head>
+
+<body>
+
+    <%- include('navbar') %>
+
+        <div class="uk-grid-small uk-child-width-1-4@s uk-flex-center uk-text-center " uk-grid>
+
+            <div>
+                <div class="uk-card uk-card-small uk-card-hover uk-card-body ">
+
+                    
+                        <h2><%= cardData.name %></h2>
+                        <p>Type: <%= cardData.type %></p>
+                        <p>Rarity: <%= cardData.rarity %></p>
+                        
+                        <img src="<%= cardData.image%>/high.webp" alt="<%= cardData.name %> Image">
+                    
+
+                </div>
+            </div>
+
+            <div>
+                <div class="uk-card uk-card-default uk-card-hover uk-card-body">
+                    <h3 class="uk-card-title">Default</h3>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+                </div>
+            </div>
+
+            <div>
+                <div class="uk-card uk-card-default uk-card-hover uk-card-body">
+                    <h3 class="uk-card-title">Default</h3>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+                </div>
+            </div>
+
+        </div>
+
+
+
+
+</body>
+
+</html>
