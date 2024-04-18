@@ -2,14 +2,13 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
-    <title>NavBar</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nav Bar</title>
     <link href="https://css.gg/css" rel="stylesheet" />
-    <link rel="stylesheet" href="public/css/uikit.min.css">
-    <link rel="stylesheet" href="node_modules/uikit/dist/css/uikit.min.css">
-    <script src="node_modules/uikit/dist/js/uikit.min.js"></script>
-    <script src="uikit/dist/js/uikit-icons.min.js"></script>
-    <script src="uikit/dist/js/uikit-icons.js"></script>
+    <script src="/js/uikit.min.js"></script>
+    <link rel="stylesheet" href="/css/uikit.min.css">
+    <script src="/js/uikit-icons.js"></script>
 </head>
 
 <body>
@@ -26,9 +25,31 @@
                         <a class="uk-link-reset" href="tradecard"><b>TCG Cove</b></a>
                     </div>
 
+                    
                     <ul class="uk-navbar-nav">
-                        <li><a href="expansions">Expansions</a></li>
-                        <li><a href="cards">Cards</a></li>
+                        <li>
+                            <a href="expansions">Expansions</a>
+                            <div class="uk-navbar-dropdown" uk-dropdown="boundary: !.uk-navbar; stretch: x; flip: false">
+                                <ul class="uk-nav uk-dropdown-nav">
+                                    <li><a href="#" >Pokémon TCG: Scarlet & Violet—Temporal Forces</a></li>
+                                    <li><a href="#">Expansion 2</a></li>
+                                    <li class="uk-nav-divider"></li>
+                                    <li><a href="expansions">More Expansions</a></li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <li><a href="cards">Cards</a>
+                            <div class="uk-navbar-dropdown" uk-dropdown="boundary: !.uk-navbar; stretch: x; flip: false">
+                                <ul class="uk-nav uk-dropdown-nav">
+                                    <li><a href="#" >Set 1</a></li>
+                                    <li><a href="#">Set 2</a></li>
+                                    <li class="uk-nav-divider"></li>
+                                    <li><a href="cards">All Cards</a></li>
+                                </ul>
+                            </div>
+                        </li>
+
                         <li><a href="#">More</a></li>
                     </ul>
 

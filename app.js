@@ -36,10 +36,9 @@ const cardTemplate = {
 
 
 
-// Set EJS as the view engine
 app.set('view engine', 'ejs');
 
-// render login, signup and tradecard webpage
+
 app.get('/login', (req, res) => {
     res.render('login', { /* data */ });
 });
@@ -59,18 +58,63 @@ app.get('/expansions', (req, res) => {
 });
 
 
-// ********** DRAFTS HERE ************ //
-
+// ***************************** DRAFTS HERE ***************************** //
 
 app.get('/cards', async (req, res) => {
     try {
-        let url = `https://api.tcgdex.net/v2/en/cards/swsh3-136`;
-        let response = await fetch(url); // Fetch card data from the API
-        let cardData = await response.json(); // Parse response body as JSON
-        res.render('cards', { cardData }); // Render the 'cards.ejs' template with cardData
+        let limit = req.query.limit || 30; 
+        let offset = req.query.offset || 0;
+        
+        
+        let url = `https://api.tcgdex.net/v2/en/base/baseset?limit=${limit}&offset=${offset}`;
+        let response = await fetch(url); 
+        let responseData = await response.json(); 
+
+        let cardData = responseData.cards;
+
+        res.render('cards', { cards_data: cardData }); 
     } catch (error) {
         console.error('Error fetching card data:', error);
-        res.status(500).send('Error fetching card data'); // Send an error response to the client
+        res.status(500).json({ error: 'Error fetching card data' }); 
+    }
+});
+
+// load more cards function
+app.get('/cards', async (req, res) => {
+    try {
+        let limit = req.query.limit || 30; 
+        let offset = req.query.offset || 0;
+        
+        let url = `https://api.tcgdex.net/v2/en/base/baseset?limit=${limit}&offset=${offset}`;
+        let response = await fetch(url); 
+        let responseData = await response.json(); 
+
+        let cardData = responseData.cards;
+
+        res.render('cards', { cards_data: cardData, offset: offset }); 
+    } catch (error) {
+        console.error('Error fetching card data:', error);
+        res.status(500).json({ error: 'Error fetching card data' }); 
+    }
+});
+
+
+
+
+
+
+app.get('/navbar', async (req, res) => {
+    try {
+        let url = `https://api.tcgdex.net/v2/en/series`;
+        let response = await fetch(url); 
+        let responseData = await response.json(); 
+
+        let seriesListData = responseData.cards;
+
+        res.render('navbar', { seriesList_data: seriesListData }); 
+    } catch (error) {
+        console.error('Error fetching list of series data:', error);
+        res.status(500).send('Error fetching list of series data'); 
     }
 });
 
@@ -81,16 +125,12 @@ app.get('/cards', async (req, res) => {
 
 
 
-
-
-
-
-// ********** DRAFTS HERE ************ //
+// ***************************** DRAFTS HERE ***************************** //
 
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Start the server
+
 const port = 3000;
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
