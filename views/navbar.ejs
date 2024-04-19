@@ -12,66 +12,82 @@
 </head>
 
 <body>
-    
 
-    <nav class="uk-navbar-container uk-background-color" uk-sticky>
-        <div class="uk-container">
-            <div uk-navbar>
-                
-                <div class="uk-navbar-left">
-                    
-                    <div class="uk-flex uk-grid-small" style="align-items: center">
-                        <a class="uk-link-reset" href="tradecard" ><i class="gg-pokemon" alt="Website Logo"></i></a>
-                        <a class="uk-link-reset" href="tradecard"><b>TCG Cove</b></a>
+    <div class="uk-position-relative">
+        <div class="uk-background-primary uk-position-top" uk-sticky>
+            <nav class="uk-navbar-container uk-navbar-transparent" uk-sticky>
+                <div class="uk-container uk-light">
+                    <div uk-navbar>
+
+                        <div class="uk-navbar-left">
+
+                            <div class="uk-flex uk-grid-small " style="align-items: center">
+                                <a class="uk-link-reset" href="tradecard"><i class="gg-pokemon"
+                                        alt="Website Logo"></i></a>
+                                <a class="uk-link-reset" href="tradecard"><b>TCG Cove</b></a>
+                            </div>
+
+
+                            <ul class="uk-navbar-nav">
+                                <li>
+                                    <a href="">Series</a>
+                                    <div class="uk-navbar-dropdown"
+                                        uk-dropdown="boundary: !.uk-navbar; stretch: x; flip: false">
+                                        <ul class="uk-nav uk-dropdown-nav">
+
+                                            <li><a href="#">
+                                                    <%= seriesList_data[0].name %>
+                                                </a>
+                                            </li>
+                                                <li><a href="#">
+                                                    <%= seriesList_data[1].name %>
+                                                </a>
+                                            </li>
+
+                                            <li class="uk-nav-divider"></li>
+                                            <li><a href="series">More Series</a></li>
+                                        </ul>
+                                    </div>
+                                </li>
+
+                                <li><a href="">Cards</a>
+                                    <div class="uk-navbar-dropdown"
+                                        uk-dropdown="boundary: !.uk-navbar; stretch: x; flip: false">
+                                        <ul class="uk-nav uk-dropdown-nav">
+                                            <li><a href="#">Set 1</a></li>
+                                            <li><a href="#">Set 2</a></li>
+                                            <li class="uk-nav-divider"></li>
+                                            <li><a href="cards">All Cards</a></li>
+                                        </ul>
+                                    </div>
+                                </li>
+
+                               
+                            </ul>
+
+                        </div>
+                        <div class="uk-navbar-right">
+
+                            <ul class="uk-navbar-nav">
+                                <li>
+                                    <a href="#" uk-icon="icon: user"></a>
+                                    <div class="uk-navbar-dropdown">
+                                        <ul class="uk-nav uk-navbar-dropdown-nav">
+                                            <li><a href="login">Login</a></li>
+                                            <li><a href="signup">Create Account</a></li>
+                                        </ul>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+
                     </div>
-
-                    
-                    <ul class="uk-navbar-nav">
-                        <li>
-                            <a href="expansions">Expansions</a>
-                            <div class="uk-navbar-dropdown" uk-dropdown="boundary: !.uk-navbar; stretch: x; flip: false">
-                                <ul class="uk-nav uk-dropdown-nav">
-                                    <li><a href="#" >Pokémon TCG: Scarlet & Violet—Temporal Forces</a></li>
-                                    <li><a href="#">Expansion 2</a></li>
-                                    <li class="uk-nav-divider"></li>
-                                    <li><a href="expansions">More Expansions</a></li>
-                                </ul>
-                            </div>
-                        </li>
-
-                        <li><a href="cards">Cards</a>
-                            <div class="uk-navbar-dropdown" uk-dropdown="boundary: !.uk-navbar; stretch: x; flip: false">
-                                <ul class="uk-nav uk-dropdown-nav">
-                                    <li><a href="#" >Set 1</a></li>
-                                    <li><a href="#">Set 2</a></li>
-                                    <li class="uk-nav-divider"></li>
-                                    <li><a href="cards">All Cards</a></li>
-                                </ul>
-                            </div>
-                        </li>
-
-                        <li><a href="#">More</a></li>
-                    </ul>
-
                 </div>
-                <div class="uk-navbar-right">
+            </nav>
 
-                    <ul class="uk-navbar-nav">
-                        <li>
-                            <a href="#"uk-icon="icon: user"></a>
-                            <div class="uk-navbar-dropdown">
-                                <ul class="uk-nav uk-navbar-dropdown-nav">
-                                    <li><a href="login" >Login</a></li>
-                                    <li><a href="signup">Create Account</a></li>
-                                </ul>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-
-            </div>
         </div>
-    </nav>
+    </div>
+
 </body>
 
 

@@ -13,12 +13,40 @@
 
 <body>
 
-    <%- include('navbar') %>
-        <div class="uk-background-secondary">
+   
+        <%- include('navbar') %>
+   
+
+
+    <div class="uk-background-muted uk-height-large" >
+        <div class="uk-card uk-card-default uk-card-body" >
+
+            <div class="uk-margin uk-width-1-5">
+                <form class="uk-search uk-search-default">
+                    <span uk-search-icon></span>
+                    <input class="uk-search-input" type="search" placeholder="Search" aria-label="Search">
+                </form>
+            </div>
+
+            <div class="uk-margin uk-width-1-5">
+                <label class="uk-form-label" for="form-horizontal-select">Select</label>
+                <div class="uk-form-controls">
+                    <select class="uk-select" id="form-horizontal-select">
+                        <option>Option 01</option>
+                        <option>Option 02</option>
+                    </select>
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="uk-background-muted">
 
             <div class="uk-grid uk-margin-large-left uk-margin-large-right" uk-grid>
                 <ul class="uk-thumbnav uk-flex-center uk-child-width-1-5@m uk-child-width-1-3@s" uk-margin
                     id="cardList">
+
                     <% for (let i=0; i < 30 && i < cards_data.length; i++) { %>
                         <% if (cards_data[i].image) { %>
                             <li>
@@ -33,62 +61,61 @@
             </div>
 
             <button id="loadMoreBtn"
-                class="uk-button uk-button-large uk-button-primary uk-width-1-1 uk-margin-medium-top " uk-margin>Load
+                class="uk-button uk-button-large uk-button-default uk-width-1-2 uk-margin-medium-top uk-align-center"
+                uk-margin>Load
                 More</button>
-            <div id="loader" class="uk-hidden">Loading...</div>
-
-
 
         </div>
+    </div>
 
 
 
-        <!-- to load more cards-->
+    <!-- to load more cards-->
 
-        <script>
-            const allCardsData = <%- JSON.stringify(cards_data) %>;
-        </script>
-        
+    <script>
+        const allCardsData = <% - JSON.stringify(cards_data) %>;
+    </script>
 
-        <script>
 
-            document.getElementById('loadMoreBtn').addEventListener('click', function () {
+    <script>
 
-                const currentCount = document.querySelectorAll('#cardList li').length;
+        document.getElementById('loadMoreBtn').addEventListener('click', function () {
 
-                const startIndex = currentCount;
-                const endIndex = startIndex + 30;
+            const currentCount = document.querySelectorAll('#cardList li').length;
 
-                if (startIndex >= allCardsData.length) {
-                    console.log('All cards have been displayed.');
-                    return; 
-                }
+            const startIndex = currentCount;
+            const endIndex = startIndex + 30;
 
-                const additionalCards = allCardsData.slice(startIndex, endIndex);
-
-                appendCards(additionalCards);
-            });
-
-            function appendCards(cards) {
-                const cardList = document.getElementById('cardList');
-                cards.forEach(card => {
-                    if (card.image) {
-                        const li = document.createElement('li');
-                        const a = document.createElement('a');
-                        const img = document.createElement('img');
-                        img.src = card.image + '/low.webp';
-                        img.alt = card.name + ' Image';
-                        a.href = 'cardinfo';
-                        a.appendChild(img);
-                        li.appendChild(a);
-                        cardList.appendChild(li);
-                    }
-                });
+            if (startIndex >= allCardsData.length) {
+                console.log('All cards have been displayed.');
+                return;
             }
 
+            const additionalCards = allCardsData.slice(startIndex, endIndex);
 
-        </script>
-        <div id="error" class="uk-hidden">Error fetching card data</div>
+            appendCards(additionalCards);
+        });
+
+        function appendCards(cards) {
+            const cardList = document.getElementById('cardList');
+            cards.forEach(card => {
+                if (card.image) {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    const img = document.createElement('img');
+                    img.src = card.image + '/low.webp';
+                    img.alt = card.name + ' Image';
+                    a.href = 'cardinfo';
+                    a.appendChild(img);
+                    li.appendChild(a);
+                    cardList.appendChild(li);
+                }
+            });
+        }
+
+
+    </script>
+    <div id="error" class="uk-hidden">Error fetching card data</div>
 
 
 
