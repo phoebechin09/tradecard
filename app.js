@@ -5,66 +5,117 @@ const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 
-const fetchSeriesListData = async (req, res, next) => {
+const fetchAllData = async (req, res, next) => {
     try {
-        let url = 'https://api.tcgdex.net/v2/en/series';
-        let response = await fetch(url);
-        let responseData = await response.json();
-        res.locals.seriesListData = responseData;
-
-        console.log('Series list data fetched:', res.locals.seriesListData);
-
-        next();
+        // Fetch series list data
+        let seriesUrl = 'https://api.tcgdex.net/v2/en/series';
+        let seriesResponse = await fetch(seriesUrl);
+        let seriesData = await seriesResponse.json();
+        res.locals.seriesListData = seriesData;
     } catch (error) {
         console.error('Error fetching series list data:', error);
         res.status(500).send('Internal server error');
     }
+
+    // Check if the request is for the /cards route
+    try {
+        if (req.path === '/cards') {
+            let cardUrl = `https://api.tcgdex.net/v2/en/cards`;
+            let cardResponse = await fetch(cardUrl);
+            let cardData = await cardResponse.json();
+            res.locals.cardData = cardData;
+            console.log('Card data response status:', cardResponse.status);
+            console.log(`fetched card data for ${req.path}`);
+            console.log('Card data:', cardData);
+            
+        } else {
+            
+            let allCardsUrl = 'https://api.tcgdex.net/v2/en/cards';
+            let allCardsResponse = await fetch(allCardsUrl);
+            let allCardsData = await allCardsResponse.json();
+            
+            const cardSkeleton = {
+                category: null,
+                id: null,
+                illustrator: null,
+                image: null,
+                localId: null,
+                name: null,
+                rarity: null,
+                variants: {
+                    firstEdition: false,
+                    holo: false,
+                    normal: false,
+                    reverse: false,
+                    wPromo: false,
+                },
+                dexId: null,
+                hp: null,
+                types: null,
+                evolveFrom: null,
+                stage: null,
+                abilities: null,
+                attacks: null,
+                weaknesses: null,
+                retreat: null,
+                legal: {
+                    standard: false,
+                    expanded: false,
+                },
+                energyType: null,
+            };
+
+            // Map each card in allCardsData to the cardSkeleton structure
+            const parsedCards = allCardsData.map(card => {
+                const parsedCard = { ...cardSkeleton }; // Create a new object based on cardSkeleton
+                // Map each property from card to parsedCard
+                for (const key in card) {
+                    if (parsedCard.hasOwnProperty(key)) {
+                        parsedCard[key] = card[key];
+                    }
+                }
+                return parsedCard;
+            });
+
+            // Set parsed card data and series list data as variables
+            res.locals.parsedCards = parsedCards;
+            console.log(`fetched and parsed all card data: ${parsedCards}`);
+        }
+    } catch (error) {
+        console.error('Error fetching all card data:', error);
+        res.status(500).send('Internal server error');
+    }
+
+    next();
 };
 
-
-
-app.get('/navbar', fetchSeriesListData, (req, res) => {
-    res.render('navbar', { seriesList_data: res.locals.seriesListData });
-});
-
-app.get('/tradecard', fetchSeriesListData, (req, res) => {
-    res.render('tradecard', { seriesList_data: res.locals.seriesListData });
-});
-
-app.get('/login', fetchSeriesListData, (req, res) => {
-    res.render('login', { seriesList_data: res.locals.seriesListData });
-});
-
-app.get('/signup', fetchSeriesListData, (req, res) => {
-    res.render('signup', { seriesList_data: res.locals.seriesListData });
-});
-
-app.get('/expansions', fetchSeriesListData, (req, res) => {
-    res.render('expansions', { seriesList_data: res.locals.seriesListData });
-});
-
-app.get('/series', fetchSeriesListData, (req, res) => {
-res.render('series', { seriesList_data: res.locals.seriesListData });
-});
-
-app.get('/cards', fetchSeriesListData, async (req, res) => {
-    try {
-        let limit = req.query.limit || 30; 
-        let offset = req.query.offset || 0;
+app.get('/cards', fetchAllData, async (req, res) => {
+    // Check if cardData exists in res.locals
+    if (res.locals.cardData) {
+        // Assign cardData to cards_data
+        res.render('cards', { cards_data: res.locals.cardData, seriesList_data: res.locals.seriesListData });
         
-        let url = `https://api.tcgdex.net/v2/en/cards?limit=${limit}&offset=${offset}`;
-        let response = await fetch(url); 
-        let responseData = await response.json(); 
-
-        let cardData = responseData;
-
-        res.render('cards', { cards_data: cardData, seriesList_data: res.locals.seriesListData }); 
-        
-    } catch (error) {
-        console.error('Error fetching card data:', error);
-        res.status(500).json({ error: 'Error fetching card data' }); 
+    } else {
+        // Handle case where cardData is not available
+        console.error('Card data is not available');
+        res.status(500).send('Internal server error');
     }
 });
+
+
+
+const templates = ['navbar', 'tradecard', 'login', 'signup', 'expansions', 'series', 'cardinfo'];
+app.get('/:template', fetchAllData, (req, res) => {
+    const templateName = req.params.template; 
+    if (templates.includes(templateName)) {
+        res.render(templateName, { seriesList_data: res.locals.seriesListData });
+    } else {
+        res.status(404).send('Not Found');
+    }
+});
+
+
+
 
 
 

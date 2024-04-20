@@ -19,7 +19,7 @@
 
 
     <div class="uk-background-muted uk-height-large" >
-        <div class="uk-card uk-card-default uk-card-body" >
+        <div class="uk-card uk-card-default uk-card-body uk-margin-medium-bottom" >
 
             <div class="uk-margin uk-width-1-5">
                 <form class="uk-search uk-search-default">
@@ -43,7 +43,7 @@
 
         <div class="uk-background-muted">
 
-            <div class="uk-grid uk-margin-large-left uk-margin-large-right" uk-grid>
+            <div class="uk-grid uk-margin-large-left uk-margin-large-right " uk-grid>
                 <ul class="uk-thumbnav uk-flex-center uk-child-width-1-5@m uk-child-width-1-3@s" uk-margin
                     id="cardList">
 
@@ -51,7 +51,7 @@
                         <% if (cards_data[i].image) { %>
                             <li>
                                 <a href="cardinfo">
-                                    <img src="<%= cards_data[i].image %>/low.webp"
+                                    <img class="uk-border-rounded" src="<%= cards_data[i].image %>/low.webp"
                                         alt="<%= cards_data[i].name %> Image">
                                 </a>
                             </li>
@@ -73,7 +73,7 @@
     <!-- to load more cards-->
 
     <script>
-        const allCardsData = <% - JSON.stringify(cards_data) %>;
+        const allCardsData = <%- JSON.stringify(cards_data) %>;
     </script>
 
 
