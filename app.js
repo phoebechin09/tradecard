@@ -126,6 +126,27 @@ app.get(`/series_sets_list/:seriesId`, async (req, res) => {
     }
 });
 
+app.get(`/set_cards_list/:setId`, async (req, res) => {
+    try {
+        const setId = req.params.setId;
+        const url = `https://api.tcgdex.net/v2/en/sets/${setId}`;
+        const response = await fetch(url);
+        const setData = await response.json();
+
+        ;
+
+        res.render('set_cards_list', { 
+            setList: setData, 
+            setId: setId, 
+            seriesList_data: res.locals.seriesListData, 
+            parsedCard: res.locals.parsedCards 
+        });
+    } catch (error) {
+        console.error('Error fetching series data:', error);
+        res.status(500).send('Error fetching series data');
+    }
+});
+
 
 
 
