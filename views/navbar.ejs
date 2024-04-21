@@ -35,15 +35,21 @@
                                         uk-dropdown="boundary: !.uk-navbar; stretch: x; flip: false">
                                         <ul class="uk-nav uk-dropdown-nav">
 
-                                            <li><a href="#">
+                                            <li>
+                                                <a href="/series_sets_list/<%= seriesList_data[0].id %>">
                                                     <%= seriesList_data[0].name %>
                                                 </a>
                                             </li>
-                                                <li><a href="#">
+                                            <li>
+                                                <a href="/series_sets_list/<%= seriesList_data[1].id %>">
                                                     <%= seriesList_data[1].name %>
                                                 </a>
                                             </li>
-
+                                            <li>
+                                                <a href="/series_sets_list/<%= seriesList_data[2].id %>">
+                                                    <%= seriesList_data[2].name %>
+                                                </a>
+                                            </li>
                                             <li class="uk-nav-divider"></li>
                                             <li><a href="series">More Series</a></li>
                                         </ul>
@@ -62,7 +68,7 @@
                                     </div>
                                 </li>
 
-                               
+                                <li><a href="#">Dashboard</a>
                             </ul>
 
                         </div>

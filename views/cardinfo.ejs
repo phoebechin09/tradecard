@@ -4,13 +4,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nav Bar</title>
+    <title>Card Info</title>
     <link href="https://css.gg/css" rel="stylesheet" />
     <script src="/js/uikit.min.js"></script>
     <link rel="stylesheet" href="/css/uikit.min.css">
     <script src="/js/uikit-icons.js"></script>
 </head>
 <body>
+    <%- include('navbar') %>
+
+    <div class="uk-child-width-expand@s" uk-grid>
+        <div class="uk-grid-item-match uk-margin">
+            <div class="uk-card uk-card-default uk-card-body">
+                <h3><%= parsedCard[5].name %></h3>
+                <p>
+                    <img src="<%= parsedCard[5].image %>/low.webp" alt="">
+                </p>
+            </div>
+         </div>
+        <div>
+            <h3>Heading</h3>
+            <p>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+            </p>
+        </div>
+    </div>
+
     
+    <%- include('footer') %>
 </body>
 </html>

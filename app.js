@@ -26,14 +26,13 @@ const fetchAllData = async (req, res, next) => {
             res.locals.cardData = cardData;
             console.log('Card data response status:', cardResponse.status);
             console.log(`fetched card data for ${req.path}`);
-            console.log('Card data:', cardData);
-            
+
         } else {
-            
+
             let allCardsUrl = 'https://api.tcgdex.net/v2/en/cards';
             let allCardsResponse = await fetch(allCardsUrl);
             let allCardsData = await allCardsResponse.json();
-            
+
             const cardSkeleton = {
                 category: null,
                 id: null,
@@ -79,7 +78,7 @@ const fetchAllData = async (req, res, next) => {
 
             // Set parsed card data and series list data as variables
             res.locals.parsedCards = parsedCards;
-            console.log(`fetched and parsed all card data: ${parsedCards}`);
+            console.log(`fetched and parsed all card data`);
         }
     } catch (error) {
         console.error('Error fetching all card data:', error);
@@ -93,8 +92,11 @@ app.get('/cards', fetchAllData, async (req, res) => {
     // Check if cardData exists in res.locals
     if (res.locals.cardData) {
         // Assign cardData to cards_data
-        res.render('cards', { cards_data: res.locals.cardData, seriesList_data: res.locals.seriesListData });
-        
+        res.render('cards', { 
+            cards_data: res.locals.cardData, 
+            seriesList_data: res.locals.seriesListData 
+        });
+
     } else {
         // Handle case where cardData is not available
         console.error('Card data is not available');
@@ -102,15 +104,25 @@ app.get('/cards', fetchAllData, async (req, res) => {
     }
 });
 
+app.get(`/series_sets_list/:seriesId`, async (req, res) => {
+    try {
+        const seriesId = req.params.seriesId;
+        const url = `https://api.tcgdex.net/v2/en/series/${seriesId}`;
+        const response = await fetch(url);
+        const seriesData = await response.json();
 
+        console.log(url);
+        console.log(`seriesList_data: ${res.locals.seriesListData}`);
 
-const templates = ['navbar', 'tradecard', 'login', 'signup', 'expansions', 'series', 'cardinfo'];
-app.get('/:template', fetchAllData, (req, res) => {
-    const templateName = req.params.template; 
-    if (templates.includes(templateName)) {
-        res.render(templateName, { seriesList_data: res.locals.seriesListData });
-    } else {
-        res.status(404).send('Not Found');
+        res.render('series_sets_list', { 
+            seriesList: seriesData, 
+            seriesId: seriesId, 
+            seriesList_data: res.locals.seriesListData, 
+            parsedCard: res.locals.parsedCards 
+        });
+    } catch (error) {
+        console.error('Error fetching series data:', error);
+        res.status(500).send('Error fetching series data');
     }
 });
 
@@ -119,6 +131,27 @@ app.get('/:template', fetchAllData, (req, res) => {
 
 
 
+const templates = [
+    'navbar', 
+    'tradecard', 
+    'login', 
+    'signup', 
+    'expansions', 
+    'series', 
+    'cardinfo', 
+    'footer'
+];
+app.get('/:template', fetchAllData, (req, res) => {
+    const templateName = req.params.template;
+    if (templates.includes(templateName)) {
+        res.render(templateName, { 
+            seriesList_data: res.locals.seriesListData, 
+            parsedCard: res.locals.parsedCards, 
+        });
+    } else {
+        res.status(404).send('Not Found');
+    }
+});
 
 const port = 3000;
 app.listen(port, () => {
