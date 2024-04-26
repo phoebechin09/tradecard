@@ -25,13 +25,193 @@ connection.connect((err) => {
 });
 
 
+const util = require('util');
+const queryAsync = util.promisify(connection.query).bind(connection);
+
+const fetchAllFromDatabase = async (req, res, next) => {
+    try {
+        const seriesQuery = 'SELECT * FROM series';
+        const fetchedSeriesData = await queryAsync(seriesQuery);
+
+        if (!Array.isArray(fetchedSeriesData)) {
+            throw new Error('Query did not return an array');
+        }
+
+        const processSeriesData = (rows) => {
+            return rows.map(seriesItem => ({
+                PKId: seriesItem.series_PK_id,
+                id: seriesItem.series_id,
+                name: seriesItem.name,
+                logo: seriesItem.logo
+            }));
+        };
+
+        res.locals.seriesData = processSeriesData(fetchedSeriesData);
+
+
+    } catch (error) {
+        console.error('Error fetching series data:', error);
+        res.status(500).send('Error fetching series data');
+    }
+
+    try {
+        const setQuery = 'SELECT * FROM card_set';
+        const fetchedSetData = await queryAsync(setQuery);
+
+        if (!Array.isArray(fetchedSetData)) {
+            throw new Error('Query did not return an array');
+        }
+
+        const processSetData = (rows) => {
+            return rows.map(setItem => ({
+                PKId: setItem.card_set_id,
+                id: setItem.set_id,
+                name: setItem.name,
+                logo: setItem.logo,
+                symbol: setItem.symbol,
+                cardCount: setItem.card_count,
+                seriesPKId: setItem.series_PK_id
+            }));
+        };
+
+        res.locals.setData = processSetData(fetchedSetData);
+    } catch (error) {
+        console.error('Error fetching set data:', error);
+        res.status(500).send('Error fetching set data');
+    }
+
+    try {
+        const cardQuery = 'SELECT * FROM card';
+        const fetchedCardData = await queryAsync(cardQuery);
+
+        if (!Array.isArray(fetchedCardData)) {
+            throw new Error('Query did not return an array');
+        }
+
+        const processCardData = (rows) => {
+            return rows.map(cardItem => ({
+                PKId: cardItem.card_PK_id,
+                id: cardItem.card_id,
+                localId: cardItem.local_id,
+                illustrator: cardItem.illustrator,
+                image: cardItem.image,
+                name: cardItem.name,
+                hp: cardItem.hp,
+                abilityType: cardItem.ability_type,
+                abilityName: cardItem.ability_name,
+                abilityEffect: cardItem.ability_effect,
+                evolveFom: cardItem.evolveFrom,
+                energyType: cardItem.energy_type,
+                rarity: cardItem.rarity,
+                stage: cardItem.stage,
+                setName: cardItem.card_set_name,
+                setPKId: cardItem.card_set_id,
+            }));
+        };
+
+        res.locals.cardData = processCardData(fetchedCardData);
+    } catch (error) {
+        console.error('Error fetching card data:', error);
+        res.status(500).send('Error fetching card data');
+    }
+    next();
+};
+
+const fetchSelectedSeriesAndSetData = async (req, res, next) => {
+    try {
+        const seriesId = req.params.seriesId;
+
+        const filteredSeriesData = res.locals.seriesData.filter(series => series.id === seriesId);
+        const selectedSeriesData = filteredSeriesData.length > 0 ? filteredSeriesData[0] : null;
+
+        if (!selectedSeriesData) {
+            throw new Error('Series data not found');
+        }
+
+        const seriesPKId = selectedSeriesData.PKId;
+
+        const filteredSetData = res.locals.setData.filter(set => set.seriesPKId === seriesPKId);
+
+        res.locals.selectedSeriesData = selectedSeriesData;
+        res.locals.selectedSetData = filteredSetData;
+        next();
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).send('Error fetching data');
+    }
+};
+router.use(fetchAllFromDatabase);
+router.get(`/series_sets_list/:seriesId`, fetchSelectedSeriesAndSetData, (req, res) => {
+    res.render('series_sets_list', {
+        selectedSeriesData: res.locals.selectedSeriesData,
+        selectedSetData: res.locals.selectedSetData,
+    });
+});
+
+const fetchSelectedSetAndCardData = async (req, res, next) => {
+    try {
+        const setId = req.params.setId;
+
+        const filteredSetData = res.locals.setData.filter(set => set.id === setId);
+        const selectedSetData = filteredSetData.length > 0 ? filteredSetData[0] : null;
+
+        if (!selectedSetData) {
+            throw new Error('Set data not found');
+        }
+
+        const setPKId = selectedSetData.PKId;
+
+        const filteredCardData = res.locals.cardData.filter(card => card.setPKId === setPKId);
+
+        res.locals.selectedSetData = selectedSetData;
+        res.locals.selectedCardData = filteredCardData;
+        next();
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).send('Error fetching data');
+    }
+};
+
+router.get(`/set_cards_list/:setId`, fetchSelectedSetAndCardData, (req, res) => {
+    res.render('set_cards_list', {
+        selectedSetData: res.locals.selectedSetData,
+        selectedCardData: res.locals.selectedCardData,
+    });
+});
+
+
+const fetchSelectedCardData = async (req, res, next) => {
+    try {
+        const cardId = req.params.cardId;
+
+        const filteredCardData = res.locals.cardData.filter(card => card.id === cardId);
+
+        res.locals.selectedCardData = filteredCardData;
+
+        console.log(res.locals.selectedCardData[0].name);
+        next();
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).send('Error fetching data');
+    }
+};
+
+router.get(`/cardinfo/:cardId`, fetchSelectedCardData, (req, res) => {
+    res.render('cardinfo', {
+        selectedCardInfo: res.locals.selectedCardData[0],
+    });
+});
+
+
+
+
 async function fetchDataAndInsertIntoDB() {
     try {
         const { baseSeriesData, dpSeriesData } = await fetchAndStoreData();
         const seriesListData = await fetchAndStoreSeriesData();
 
         // console.log('Structure of Base Series Data:', baseSeriesData);
-        console.log('Structure of DP Series Data:', dpSeriesData);
+        // console.log('Structure of DP Series Data:', dpSeriesData);
 
         for (const series of seriesListData) {
             const query = 'SELECT * FROM series WHERE name = ?';
@@ -44,18 +224,14 @@ async function fetchDataAndInsertIntoDB() {
             }
         }
 
-
-        // Insert baseSeriesData into base_series table
         await insertBaseSeriesData(baseSeriesData);
         await insertCardsSetFromBaseSeries(baseSeriesData);
 
 
-        // Insert dpSeriesData into dp_series table
         await insertDpSeriesData(dpSeriesData);
         await insertCardsSetFromDpSeriesData(dpSeriesData);
 
         return 'Data fetched and inserted successfully';
-
     } catch (error) {
         console.error('Error fetching and storing data:', error);
         throw error;
@@ -69,10 +245,9 @@ async function insertSeriesListData(seriesListData) {
                 const query = `INSERT INTO series (series_id, name, logo) VALUES (?, ?, ?)`;
                 const values = [series.id, series.name, series.logo];
                 await connection.query(query, values);
-                console.log(`Inserted series: ${series.name}`);
             } catch (error) {
                 console.error(`Error inserting series ${series.name}:`, error);
-                throw error; 
+                throw error;
             }
         });
         await Promise.all(insertionPromises);
@@ -82,8 +257,6 @@ async function insertSeriesListData(seriesListData) {
         throw error;
     }
 }
-
-
 
 async function insertBaseSeriesData(baseSeriesData) {
     try {
@@ -112,7 +285,6 @@ async function insertBaseSeriesData(baseSeriesData) {
         throw error;
     }
 }
-
 
 async function insertCardsSetFromBaseSeries(baseSeriesData) {
     try {
@@ -181,7 +353,7 @@ async function insertCardsSetFromBaseSeries(baseSeriesData) {
                                     attackItem.name,
                                     attackItem.effect || null,
                                     JSON.stringify(attackItem.cost),
-                                    attackItem.damage || null, 
+                                    attackItem.damage || null,
                                     cardItem.id
                                 ];
                                 await connection.query(attackQuery, attackValues);
@@ -201,7 +373,7 @@ async function insertCardsSetFromBaseSeries(baseSeriesData) {
                                 attackItem.name,
                                 attackItem.effect || null,
                                 JSON.stringify(attackItem.cost),
-                                attackItem.damage || null, 
+                                attackItem.damage || null,
                                 cardItem.id
                             ];
                             await connection.query(attackQuery, attackValues);
@@ -340,7 +512,7 @@ async function insertCardsSetFromDpSeriesData(dpSeriesData) {
                                     attackItem.name,
                                     attackItem.effect || null,
                                     JSON.stringify(attackItem.cost),
-                                    attackItem.damage || null, 
+                                    attackItem.damage || null,
                                     cardItem.id
                                 ];
                                 await connection.query(attackQuery, attackValues);
@@ -360,7 +532,7 @@ async function insertCardsSetFromDpSeriesData(dpSeriesData) {
                                 attackItem.name,
                                 attackItem.effect || null,
                                 JSON.stringify(attackItem.cost),
-                                attackItem.damage || null, 
+                                attackItem.damage || null,
                                 cardItem.id
                             ];
                             await connection.query(attackQuery, attackValues);
@@ -402,24 +574,21 @@ async function insertCardsSetFromDpSeriesData(dpSeriesData) {
     }
 } // end of insertCardsSetFromDpSeriesData(dpSeriesData) method
 
-
-
-
 // Handle the route FetchAndInsertData
-router.get('/FetchAndInsertData', async (req, res) => {
-    try {
-        console.log('calling function fetchDataAndInsertIntoDB();');
-        const result = await fetchDataAndInsertIntoDB();
-        res.send(result);
+// router.get('/FetchAndInsertData', async (req, res) => {
+//     try {
+//         console.log('calling function fetchDataAndInsertIntoDB();');
+//         const result = await fetchDataAndInsertIntoDB();
+//         res.send(result);
 
-    } catch (error) {
-        console.error('Error processing request:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
+//     } catch (error) {
+//         console.error('Error processing request:', error);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
 
 
-
+router.use(fetchAllFromDatabase);
 module.exports = router;
 
 

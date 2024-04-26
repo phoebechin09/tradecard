@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
-        <%= seriesList.name %> Series
+        <%= selectedSeriesData.name %> Series
     </title>
     <link href="https://css.gg/css" rel="stylesheet" />
     <script src="/js/uikit.min.js"></script>
@@ -14,24 +14,22 @@
 </head>
 
 <body>
+    <%- include('navbar') %>
 
 
     <div class="uk-flex uk-child-width-1-4">
         <div class="uk-align-center">
-            <h4 class="uk-text-center uk-text-bold">
-                <%= seriesList.name %> Series
-            </h4>
-            <img sizes="" src="<%= seriesList.logo %>.png" alt="">
+            <img sizes="" src="<%= selectedSeriesData.logo %>.png" alt="">
         </div>
     </div>
 
     <div class="uk-margin uk-margin-large-left">
-        <h6>Showing <%= seriesList.sets.length %> Set(s) from <%= seriesList.name %>:</h6>
+        <h6>Showing <%= selectedSetData.length %> Set(s) from <%= selectedSeriesData.name %> Series:</h6>
     </div>
 
     <div class="uk-grid-small uk-margin-large-left uk-margin-large-right uk-margin-medium-bottom uk-child-width-1-3@s uk-child-width-1-4@m uk-flex-center"
         uk-grid uk-height-match="target: .uk-card">
-        <% seriesList.sets.forEach(set=> { %>
+        <% selectedSetData.forEach(set=> { %>
             <div>
                 <div class="uk-card uk-card-default uk-card-hover ">
                     <div class="uk-margin-small-left uk-padding-small ">

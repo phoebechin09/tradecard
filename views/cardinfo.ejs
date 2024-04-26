@@ -16,16 +16,16 @@
     <div class="uk-child-width-expand@s" uk-grid>
         <div class="uk-grid-item-match uk-margin">
             <div class="uk-card uk-card-default uk-card-body">
-                <h3><%= parsedCard[5].name %></h3>
+                <h3><%= selectedCardInfo.name %> </h3>
                 <p>
-                    <img src="<%= parsedCard[5].image %>/low.webp" alt="">
+                    <img src="<%= selectedCardInfo.image %>/low.webp" alt="">
                 </p>
             </div>
          </div>
         <div>
             <h3>Heading</h3>
             <p>
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                <%= selectedCardInfo.name %>
             </p>
         </div>
     </div>

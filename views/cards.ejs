@@ -43,24 +43,24 @@
 
         <div class="">
             <div class="uk-margin uk-margin-large-left">
-                <h6>Showing All <%= cards_data.length %> Cards:</h6> 
+                <h6>Showing All <%= cardData.length %> Cards:</h6> 
              </div>
 
             <div class="uk-grid uk-margin-large-left uk-margin-large-right " uk-grid >
                 <ul class="uk-thumbnav uk-flex-center uk-child-width-1-5@m uk-child-width-1-3@s" uk-margin
                     id="cardList">
 
-                    <% for (let i=0; i < 30 && i < cards_data.length; i++) { %>
-                        <% if (cards_data[i].image) { %>
+                    <% for (let i=0; i < 30 && i < cardData.length; i++) { %>
+                        <% if (cardData[i].image) { %>
                             <li>
-                                <a href="cardinfo" class="thumbNavi">
-                                    <img class="uk-border-rounded " src="<%= cards_data[i].image %>/low.webp"
-                                        alt="<%= cards_data[i].name %> Image">
+                                <a href="/cardinfo/<%= cardData[i].id %>" class="thumbNavi">
+                                    <img class="uk-border-rounded " src="<%= cardData[i].image %>/low.webp"
+                                        alt="<%= cardData[i].name %> Image">
                                 </a>
                             </li>
                             <% } else { %>
                                 <div class="uk-card uk-card-default uk-card-hover uk-border-rounded uk-text-center" uk-height-match="target: .uk-thumbnav">
-                                    <a class="uk-link-reset uk-text-small uk-text-muted uk-margin-medium-top" href="cardinfo">no image 🖼️</a>
+                                    <a class="uk-link-reset uk-text-small uk-text-muted uk-margin-medium-top" href="/cardinfo/<%= cardData[i].id %>">no image 🖼️</a>
                                 </div>
                                 
                             <% } %>
@@ -81,7 +81,7 @@
     <!-- to load more cards-->
 
     <script>
-        const allCardsData = <%- JSON.stringify(cards_data) %>;
+        const allCardsData = <%- JSON.stringify(cardData) %>;
     </script>
 
 
@@ -113,7 +113,7 @@
                     const img = document.createElement('img');
                     img.src = card.image + '/low.webp';
                     img.alt = card.name + ' Image';
-                    a.href = 'cardinfo';
+                    a.href = '/cardinfo/<%= cardData.id %>';
                     a.appendChild(img);
                     li.appendChild(a);
                     cardList.appendChild(li);

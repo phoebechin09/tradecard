@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const app = express();
-
+const fs = require('fs');
 
 
 
@@ -10,6 +10,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
+
+
+
 
 // routes
 const routes = require('./routes/routes');
@@ -21,32 +24,32 @@ try {
     console.error('Error setting up routes:', error);
 }
 
+app.get('/:template', (req, res) => {
+    const templateName = req.params.template;
+    const templatePath = path.join(__dirname, 'views', `${templateName}.ejs`);
 
-// *********************************************************************************
+    // Check if template file exists
+    fs.access(templatePath, fs.constants.F_OK, (err) => {
+        if (err) {
+            res.status(404).send('Not Found');
+        } else {
+            res.render(templateName, {
+                seriesData: res.locals.seriesData,
+                setData: res.locals.setData,
+                cardData: res.locals.cardData
+            });
+        }
+    });
+});
 
 
 
-// const templates = [
-//     'navbar', 
-//     'tradecard', 
-//     'login', 
-//     'signup', 
-//     'expansions', 
-//     'series', 
-//     'cardinfo', 
-//     'footer'
-// ];
-// app.get('/:template', fetchAllData, (req, res) => {
-//     const templateName = req.params.template;
-//     if (templates.includes(templateName)) {
-//         res.render(templateName, { 
-//             seriesList_data: res.locals.seriesListData, 
-//             parsedCard: res.locals.parsedCards, 
-//         });
-//     } else {
-//         res.status(404).send('Not Found');
-//     }
-// });
+
+
+
+
+
+
 
 const port = 3000;
 app.listen(port, () => {

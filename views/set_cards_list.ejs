@@ -3,41 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= setList.name %> Set</title>
+    <title><%= selectedSetData.name %> Set</title>
     <link href="https://css.gg/css" rel="stylesheet" />
     <script src="/js/uikit.min.js"></script>
     <link rel="stylesheet" href="/css/uikit.min.css">
     <script src="/js/uikit-icons.js"></script>
 </head>
 <body>
-    
+    <%- include('navbar') %>
+
     <div class="uk-flex uk-child-width-1-4">
-        <div class="uk-align-center">
-            <h4 class="uk-text-center uk-text-bold">
-                <%= setList.name %> Set
-            </h4>
-            <img sizes="" src="<%= setList.logo %>.png" alt="">
+        <div class="uk-align-center uk-margin-top">
+            <img sizes="" src="<%= selectedSetData.logo %>.png" alt="">
         </div>
     </div>
 
     <div class="uk-margin uk-margin-large-left">
-        <h6>Showing  <%= setList.cards.length %> Cards From  <%= setList.name %>:</h6>
+        <h6>Showing  <%= selectedSetData.cardCount %> Cards From  <%= selectedSetData.name %>:</h6>
     </div>
 
     <div class="uk-grid-small uk-margin-large-left uk-margin-large-right uk-margin-medium-bottom uk-child-width-1-3@s uk-child-width-1-4@m uk-flex-center"
         uk-grid uk-height-match="target: .uk-card">
-        <% setList.cards.forEach(card=> { %>
+        <% selectedCardData.forEach(card=> { %>
             <div>
                 <div class="uk-card uk-card-default uk-card-hover ">
                     <div class="uk-margin-small-left uk-padding-small">
-                        <a class="uk-link-reset" href="#">
-                            <%= card.name %> 
+                        <a class="uk-link-reset" href="/cardinfo/<%= card.id %>">
+                            <%= card.localId %> - <%= card.name %> 
                         </a>
                     </div>
                     <div class="uk-card-media-bottom uk-padding-small ">
 
                         <% if (card.image){ %>
-                            <a href="#"><img src="<%= card.image %>/low.webp" alt=""></a>
+                            <a href="/cardinfo/<%= card.id %>"><img src="<%= card.image %>/low.webp" alt=""></a>
                             <% } else { %>
                                 <div class="uk-text-center">
                                     <a class="uk-link-reset uk-text-small uk-text-muted " href="#">no image 🖼️</a>
