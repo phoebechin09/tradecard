@@ -28,6 +28,27 @@ connection.connect((err) => {
 const util = require('util');
 const queryAsync = util.promisify(connection.query).bind(connection);
 
+function processCardData(rows) {
+    return rows.map(cardItem => ({
+        PKId: cardItem.card_PK_id,
+        id: cardItem.card_id,
+        localId: cardItem.local_id,
+        illustrator: cardItem.illustrator,
+        image: cardItem.image,
+        name: cardItem.name,
+        hp: cardItem.hp,
+        abilityType: cardItem.ability_type,
+        abilityName: cardItem.ability_name,
+        abilityEffect: cardItem.ability_effect,
+        evolveFom: cardItem.evolveFrom,
+        energyType: cardItem.energy_type,
+        rarity: cardItem.rarity,
+        stage: cardItem.stage,
+        setName: cardItem.card_set_name,
+        setPKId: cardItem.card_set_id,
+    }));
+}
+
 const fetchAllFromDatabase = async (req, res, next) => {
     try {
         const seriesQuery = 'SELECT * FROM series';
@@ -88,27 +109,6 @@ const fetchAllFromDatabase = async (req, res, next) => {
             throw new Error('Query did not return an array');
         }
 
-        const processCardData = (rows) => {
-            return rows.map(cardItem => ({
-                PKId: cardItem.card_PK_id,
-                id: cardItem.card_id,
-                localId: cardItem.local_id,
-                illustrator: cardItem.illustrator,
-                image: cardItem.image,
-                name: cardItem.name,
-                hp: cardItem.hp,
-                abilityType: cardItem.ability_type,
-                abilityName: cardItem.ability_name,
-                abilityEffect: cardItem.ability_effect,
-                evolveFom: cardItem.evolveFrom,
-                energyType: cardItem.energy_type,
-                rarity: cardItem.rarity,
-                stage: cardItem.stage,
-                setName: cardItem.card_set_name,
-                setPKId: cardItem.card_set_id,
-            }));
-        };
-
         res.locals.cardData = processCardData(fetchedCardData);
     } catch (error) {
         console.error('Error fetching card data:', error);
@@ -134,7 +134,7 @@ const fetchSelectedSeriesAndSetData = async (req, res, next) => {
 
         res.locals.selectedSeriesData = selectedSeriesData;
         res.locals.selectedSetData = filteredSetData;
-        next();
+
     } catch (error) {
         console.error('Error fetching data:', error);
         res.status(500).send('Error fetching data');
@@ -147,6 +147,78 @@ router.get(`/series_sets_list/:seriesId`, fetchSelectedSeriesAndSetData, (req, r
         selectedSetData: res.locals.selectedSetData,
     });
 });
+
+// router.get('/searchCardsKeyword', (req, res) => {
+//     const searchQuery = req.query.q;
+//     if (!searchQuery) {
+//         return res.status(400).json({ error: 'Search query is missing' });
+//     }
+
+//     const sqlQuery = `
+//         SELECT *
+//         FROM card
+//         WHERE name LIKE ?
+//         OR illustrator LIKE ?
+//         OR ability_name LIKE ?
+//         OR evolveFrom LIKE ?
+//         OR energy_type LIKE ?
+//     `;
+//     const queryParams = Array(5).fill(`%${searchQuery}%`);
+
+//     connection.query(sqlQuery, queryParams, (error, results) => {
+//         if (error) {
+//             console.error('Error searching cards:', error);
+//             return res.status(500).json({ error: 'Internal server error' });
+//         }
+
+//         res.locals.searchedCardData = processCardData(results);
+
+//         res.render('cards', { cardData: res.locals.searchedCardData });
+//     });
+// });
+
+
+const fetchCardKeywordSearch = async (req, res, next) => {
+    const searchQuery = req.query.q;
+    if (!searchQuery) {
+        return res.status(400).json({ error: 'Search query is missing' });
+    }
+
+    const sqlQuery = `
+        SELECT *
+        FROM card
+        WHERE name LIKE ?
+        OR illustrator LIKE ?
+        OR ability_name LIKE ?
+        OR evolveFrom LIKE ?
+        OR energy_type LIKE ?
+    `;
+    const queryParams = Array(5).fill(`%${searchQuery}%`);
+    console.log(`%${searchQuery}%`);
+    connection.query(sqlQuery, queryParams, (error, results) => {
+        if (error) {
+            console.error('Error searching cards:', error);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+
+        res.locals.searchedCardData = processCardData(results);
+        next();
+    });
+};
+
+router.get('/searchCardsKeyword', fetchCardKeywordSearch, (req, res) => {
+    console.log(res.locals.searchedCardData);
+    res.render('cards', { searchData: res.locals.searchedCardData });
+});
+
+
+
+// Express route to serve card data
+// router.get('/api/cardData', (req, res) => {
+//     const cardData = res.locals.cardData; 
+//     res.json(cardData);
+// });
+
 
 const fetchSelectedSetAndCardData = async (req, res, next) => {
     try {
@@ -165,7 +237,6 @@ const fetchSelectedSetAndCardData = async (req, res, next) => {
 
         res.locals.selectedSetData = selectedSetData;
         res.locals.selectedCardData = filteredCardData;
-        next();
     } catch (error) {
         console.error('Error fetching data:', error);
         res.status(500).send('Error fetching data');
@@ -189,7 +260,6 @@ const fetchSelectedCardData = async (req, res, next) => {
         res.locals.selectedCardData = filteredCardData;
 
         console.log(res.locals.selectedCardData[0].name);
-        next();
     } catch (error) {
         console.error('Error fetching data:', error);
         res.status(500).send('Error fetching data');
@@ -205,6 +275,13 @@ router.get(`/cardinfo/:cardId`, fetchSelectedCardData, (req, res) => {
 
 
 
+
+
+
+
+
+
+// fetch from API and store into my database
 async function fetchDataAndInsertIntoDB() {
     try {
         const { baseSeriesData, dpSeriesData } = await fetchAndStoreData();
