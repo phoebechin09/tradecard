@@ -17,7 +17,7 @@
     <%- include('navbar') %>
 
 
-    <div class="uk-flex uk-child-width-1-4">
+    <div class="uk-flex uk-child-width-1-4 uk-margin">
         <div class="uk-align-center">
             <img sizes="" src="<%= selectedSeriesData.logo %>.png" alt="">
         </div>
@@ -37,9 +37,7 @@
                         <a class="uk-link-reset" href="/set_cards_list/<%= set.id %>">
                             <%= set.name %>
                         </a>
-                        <div class="uk-width-1-5 uk-flex-inline ">
-                            <img src="<%= set.symbol %>.png" alt="">
-                        </div>
+                        <span class="uk-width-1-6 uk-align-right"><img src="<%= set.symbol %>.png" alt=""></span>
                     </div>
                     <div class="uk-card-media-bottom uk-padding-small ">
 

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { fetchAndStoreData, fetchAndStoreSeriesData } = require('./fetchAllData');
+const bcrypt = require('bcrypt');
 
 const mysql = require('mysql');
 
@@ -28,6 +29,50 @@ connection.connect((err) => {
 const util = require('util');
 const queryAsync = util.promisify(connection.query).bind(connection);
 
+router.post("/registerAccount", async (req, res) => {
+    const user = req.body.user;
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+    console.log('username:', user);
+    console.log('hashedpassword: ', hashedPassword);
+    console.log('password: ', req.body.password);
+
+    const sqlSearch = "SELECT * FROM account WHERE user_name = ?";
+    const sqlInsert = "INSERT INTO account (user_name, user_password) VALUES (?,?)";
+
+    connection.query(sqlSearch, [user], async (err, result) => {
+        if (err) {
+            console.error('Error searching user:', err);
+            res.status(500).json({ error: 'Internal Server Error' });
+            return;
+        }
+
+        console.log("------> Search Results:", result.length);
+
+        if (result.length !== 0) {
+            console.log("------> User already exists");
+            res.json({ alreadyExistmessage: 'Looks like you already have an account, proceed to login instead!' });
+        } else {
+            connection.query(sqlInsert, [user, hashedPassword], (err, result) => {
+                if (err) {
+                    console.error('Error inserting user:', err);
+                    res.status(500).json({ error: 'Internal Server Error' });
+                    return;
+                }
+
+                console.log("--------> Created new User:", result.insertId);
+                res.json({ successMessage: 'Account created successfully!' });
+            });
+        }
+    });
+});
+
+
+
+
+
+
+
 function processCardData(rows) {
     return rows.map(cardItem => ({
         PKId: cardItem.card_PK_id,
@@ -40,7 +85,7 @@ function processCardData(rows) {
         abilityType: cardItem.ability_type,
         abilityName: cardItem.ability_name,
         abilityEffect: cardItem.ability_effect,
-        evolveFom: cardItem.evolveFrom,
+        evolveFrom: cardItem.evolveFrom,
         energyType: cardItem.energy_type,
         rarity: cardItem.rarity,
         stage: cardItem.stage,
@@ -139,6 +184,7 @@ const fetchSelectedSeriesAndSetData = async (req, res, next) => {
         console.error('Error fetching data:', error);
         res.status(500).send('Error fetching data');
     }
+    next();
 };
 router.use(fetchAllFromDatabase);
 router.get(`/series_sets_list/:seriesId`, fetchSelectedSeriesAndSetData, (req, res) => {
@@ -147,79 +193,6 @@ router.get(`/series_sets_list/:seriesId`, fetchSelectedSeriesAndSetData, (req, r
         selectedSetData: res.locals.selectedSetData,
     });
 });
-
-// router.get('/searchCardsKeyword', (req, res) => {
-//     const searchQuery = req.query.q;
-//     if (!searchQuery) {
-//         return res.status(400).json({ error: 'Search query is missing' });
-//     }
-
-//     const sqlQuery = `
-//         SELECT *
-//         FROM card
-//         WHERE name LIKE ?
-//         OR illustrator LIKE ?
-//         OR ability_name LIKE ?
-//         OR evolveFrom LIKE ?
-//         OR energy_type LIKE ?
-//     `;
-//     const queryParams = Array(5).fill(`%${searchQuery}%`);
-
-//     connection.query(sqlQuery, queryParams, (error, results) => {
-//         if (error) {
-//             console.error('Error searching cards:', error);
-//             return res.status(500).json({ error: 'Internal server error' });
-//         }
-
-//         res.locals.searchedCardData = processCardData(results);
-
-//         res.render('cards', { cardData: res.locals.searchedCardData });
-//     });
-// });
-
-
-const fetchCardKeywordSearch = async (req, res, next) => {
-    const searchQuery = req.query.q;
-    if (!searchQuery) {
-        return res.status(400).json({ error: 'Search query is missing' });
-    }
-
-    const sqlQuery = `
-        SELECT *
-        FROM card
-        WHERE name LIKE ?
-        OR illustrator LIKE ?
-        OR ability_name LIKE ?
-        OR evolveFrom LIKE ?
-        OR energy_type LIKE ?
-    `;
-    const queryParams = Array(5).fill(`%${searchQuery}%`);
-    console.log(`%${searchQuery}%`);
-    connection.query(sqlQuery, queryParams, (error, results) => {
-        if (error) {
-            console.error('Error searching cards:', error);
-            return res.status(500).json({ error: 'Internal server error' });
-        }
-
-        res.locals.searchedCardData = processCardData(results);
-        next();
-    });
-};
-
-router.get('/searchCardsKeyword', fetchCardKeywordSearch, (req, res) => {
-    console.log(res.locals.searchedCardData);
-    res.render('cards', { searchData: res.locals.searchedCardData });
-});
-
-
-
-// Express route to serve card data
-// router.get('/api/cardData', (req, res) => {
-//     const cardData = res.locals.cardData; 
-//     res.json(cardData);
-// });
-
-
 const fetchSelectedSetAndCardData = async (req, res, next) => {
     try {
         const setId = req.params.setId;
@@ -241,6 +214,7 @@ const fetchSelectedSetAndCardData = async (req, res, next) => {
         console.error('Error fetching data:', error);
         res.status(500).send('Error fetching data');
     }
+    next();
 };
 
 router.get(`/set_cards_list/:setId`, fetchSelectedSetAndCardData, (req, res) => {
@@ -256,20 +230,121 @@ const fetchSelectedCardData = async (req, res, next) => {
         const cardId = req.params.cardId;
 
         const filteredCardData = res.locals.cardData.filter(card => card.id === cardId);
+        if (filteredCardData.length === 0) {
+            return res.status(404).send('Card not found');
+        }
+        const query = `SELECT card_set.name AS set_name, card_set.card_count AS card_count, card_set.set_id, series.series_id, series.name AS series_name FROM card_set JOIN card ON card.card_set_id = card_set.card_set_id JOIN series ON card_set.series_PK_id = series.series_PK_id WHERE card.card_id = ?`;
+        const filteredData = await queryAsync(query, cardId);
+        if (filteredData.length === 0) {
+            return res.status(404).send('Card data not found');
+        }
+
+        const mappedData = {
+            cardSetID: filteredData[0].set_id,
+            setCardCount: filteredData[0].card_count,
+            cardSetName: filteredData[0].set_name,
+            cardSeriesId: filteredData[0].series_id,
+            cardSeriesName: filteredData[0].series_name
+        };
+
+        const attackQuery = `SELECT name, effect, cost, damage, card_id, card_PK_id FROM attack WHERE card_id = ?`
+        const filteredAttack = await queryAsync(attackQuery, cardId);
+        const mappedAttackData = filteredAttack ? filteredAttack.map(data => {
+            function formatEnergyData(cost) {
+                if (cost === null) {
+                    return [];
+                }
+                const energyArray = cost.slice(1, -1).split(',');
+                const energyCount = energyArray.reduce((acc, energy) => {
+                    const trimmedEnergy = energy.trim().replace(/^"|"$/g, '');
+                    acc[trimmedEnergy] = (acc[trimmedEnergy] || 0) + 1;
+                    return acc;
+                }, {});
+                const formattedEnergy = Object.entries(energyCount).map(([energy, count]) => {
+                    return `${energy} x${count}`;
+                });
+                return formattedEnergy;
+            }
+            const formattedEnergy = formatEnergyData(data.cost);
+            return {
+                name: data.name,
+                effect: data.effect,
+                cost: formattedEnergy,
+                damage: data.damage,
+                cardId: data.card_id,
+                cardPKId: data.card_PK_id
+            };
+        }) : [];
+
+
+        const weaknessQuery = `SELECT weakness.energy_type, weakness.value FROM weakness JOIN card ON card.card_PK_id = weakness.card_PK_id WHERE card.card_id = ?`;
+        const filteredWeakness = await queryAsync(weaknessQuery, cardId);
+
+        let mappedWeakness;
+        if (filteredWeakness.length > 0) {
+            // Extract the numeric value from the string
+            const value = filteredWeakness[0].value.match(/\d+/)[0];
+            mappedWeakness = [{
+                type: filteredWeakness[0].energy_type,
+                value: `x${value}`
+            }];
+        } else {
+            mappedWeakness = null;
+        }
 
         res.locals.selectedCardData = filteredCardData;
+        res.locals.filteredData = mappedData;
+        res.locals.filteredAttackData = mappedAttackData;
+        res.locals.filteredWeaknessData = mappedWeakness;
 
-        console.log(res.locals.selectedCardData[0].name);
     } catch (error) {
         console.error('Error fetching data:', error);
-        res.status(500).send('Error fetching data');
+        return res.status(500).send('Error fetching data');
     }
+    next();
 };
 
 router.get(`/cardinfo/:cardId`, fetchSelectedCardData, (req, res) => {
     res.render('cardinfo', {
         selectedCardInfo: res.locals.selectedCardData[0],
+        selectedOtherInfo: res.locals.filteredData,
+        selectedAttackInfo: res.locals.filteredAttackData,
+        selectedWeaknessInfo: res.locals.filteredWeaknessData[0]
     });
+});
+
+router.get('/searchCardsKeyword', (req, res) => {
+    const searchQuery = req.query.q;
+    if (!searchQuery) {
+        return res.status(400).json({ error: 'Search query is missing' });
+    }
+
+    const sqlQuery = `
+        SELECT *
+        FROM card
+        WHERE name LIKE ?
+        OR illustrator LIKE ?
+        OR ability_name LIKE ?
+        OR evolveFrom LIKE ?
+        OR energy_type LIKE ?
+    `;
+    const queryParams = Array(5).fill(`%${searchQuery}%`);
+
+    connection.query(sqlQuery, queryParams, (error, results) => {
+        if (error) {
+            console.error('Error searching cards:', error);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+
+        res.locals.searchedCardData = processCardData(results);
+        res.json(res.locals.searchedCardData);
+    });
+});
+
+// Express route to serve card data
+router.get('/api/cardData', (req, res) => {
+    const cardData = res.locals.cardData;
+    res.json(cardData);
 });
 
 
@@ -281,7 +356,10 @@ router.get(`/cardinfo/:cardId`, fetchSelectedCardData, (req, res) => {
 
 
 
-// fetch from API and store into my database
+
+
+
+// fetch from API and store into my database****************************************************************************
 async function fetchDataAndInsertIntoDB() {
     try {
         const { baseSeriesData, dpSeriesData } = await fetchAndStoreData();

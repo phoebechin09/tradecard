@@ -15,7 +15,7 @@
 <body>
     <%- include('navbar') %>
 
-        <div class="uk-child-width-1-2@s"></div>
+        <div id="alert-container"></div>
 
         <div class="uk-flex uk-flex-center  uk-flex-middle uk-height-viewport">
             <div class="uk-card uk-card-default uk-card-large uk-card-body uk-container uk-flex-column">
@@ -25,26 +25,29 @@
                 <div class="uk-flex-column">
                     <div class="uk-margin uk-inline ">
                         <span class="uk-form-icon" uk-icon="icon: user"></span>
-                        <input class="uk-input" type="text" placeholder="username" aria-label="Not clickable icon">
+                        <input id="user" class="uk-input" type="text" placeholder="username"
+                            aria-label="Not clickable icon">
                     </div>
                 </div>
 
                 <div class="uk-flex-column">
                     <div class="uk-margin uk-inline uk-flex-column">
                         <span class="uk-form-icon" uk-icon="icon: lock"></span>
-                        <input class="uk-input" type="password" placeholder="create password" aria-label="Not clickable icon">
+                        <input id="password" class="uk-input" type="password" placeholder="create password"
+                            aria-label="Not clickable icon">
                     </div>
                 </div>
 
                 <div class="uk-flex-column">
                     <div class="uk-margin uk-inline uk-flex-column">
                         <span class="uk-form-icon" uk-icon="icon: lock"></span>
-                        <input class="uk-input" type="password" placeholder="re-enter password" aria-label="Not clickable icon">
+                        <input id="confirmPassword" class="uk-input" type="password" placeholder="re-enter password"
+                            aria-label="Not clickable icon">
                     </div>
                 </div>
 
                 <div class="uk-margin">
-                    <button class="uk-button uk-button-primary">Enter</button>
+                    <button id="registerButton" class="uk-button uk-button-primary">Enter</button>
                 </div>
 
                 <div>
@@ -56,6 +59,102 @@
         </div>
 
         <%- include('footer') %>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const registerButton = document.getElementById('registerButton');
+
+                    registerButton.addEventListener('click', function (event) {
+                        event.preventDefault(); // Prevent form submission
+
+                        // Retrieve input values
+                        const user = document.getElementById('user').value;
+                        const password = document.getElementById('password').value;
+                        const confirmPassword = document.getElementById('confirmPassword').value;
+
+                        console.log('Input username: ', user);
+                        console.log('Input password: ', password);
+
+                        if (!password || !user || !confirmPassword) {
+                            createAlert('Please fill in all inputs in form.');
+                            return;
+                        }
+                        if (user.trim().includes(' ')) {
+                            createAlert('No spaces allowed in username');
+                            return;
+                        }
+                        if (/[\s~`!@#$%^&*()+=\-[\]\\';,/{}|\\":<>?]/g.test(user)) {
+                            createAlert('Username cannot contain special characters or symbols');
+                            return;
+                        }
+
+                        // Check if passwords match
+                        if (password !== confirmPassword) {
+                            createAlert('Passwords do not match.');
+                            return;
+                        }
+
+                        // Prepare data to send to the server
+                        const formData = {
+                            user: user,
+                            password: password
+                        };
+
+                        // Send POST request to server
+                        fetch('/registerAccount', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(formData)
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok');
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                if (data.alreadyExistmessage) {
+                                    console.log(data.mesalreadyExistmessageage);
+                                    createAlert(data.alreadyExistmessage);
+                                    return;
+                                } else if (data.successMessage) {
+                                    createSuccessAlert(data.successMessage);
+                                }
+                            })
+                            .catch(error => {
+                                // Handle registration error
+                                console.error('Error registering user:', error);
+                                alert('Error registering user');
+                            });
+                    });
+                });
+
+                function createAlert(message) {
+                    const alertDiv = document.createElement('div');
+                    alertDiv.classList.add('uk-alert', 'uk-alert-danger');
+                    alertDiv.setAttribute('uk-alert', '');
+                    alertDiv.innerHTML = `<a class="uk-alert-close" uk-close></a><p>${message}</p>`;
+
+                    console.log(alertDiv);
+                    const alertContainer = document.getElementById('alert-container');
+                    alertContainer.appendChild(alertDiv);
+                }
+                function createSuccessAlert(message) {
+                    const alertDiv = document.createElement('div');
+                    alertDiv.classList.add('uk-alert', 'uk-alert-success');
+                    alertDiv.setAttribute('uk-alert', '');
+                    alertDiv.innerHTML = `<a class="uk-alert-close" uk-close></a><p>${message}</p>`;
+
+                    console.log(alertDiv);
+                    const alertContainer = document.getElementById('alert-container');
+                    alertContainer.appendChild(alertDiv);
+                }
+
+
+            </script>
+
 </body>
 
 </html>
