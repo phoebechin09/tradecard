@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +10,57 @@
     <link rel="stylesheet" href="/css/uikit.min.css">
     <script src="/js/uikit-icons.js"></script>
 </head>
+
 <body>
     <%- include('navbar') %>
+        <div class="uk-padding-small" uk-height-viewport="expand: true">
+            <div class="">
+                <h3 class="uk-margin-remove-bottom uk-text-large">My Dashboard</h3>
+                <p class="uk-margin-remove-top uk-text-meta uk-text-small"><i>Welcome back <%= user %>!</i></p>
+            </div>
+            <div class="uk-child-width-1-1 uk-align-center" uk-grid>
+
+                <div class="uk-child-width-expand@s uk-text-center" uk-grid>
+                    <div>
+                        <div class="uk-card uk-card-default uk-card-body">Total Cards: <p>0</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="uk-card uk-card-default uk-card-body">Unique Cards: <p>0</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="uk-card uk-card-default uk-card-body">Total Series: <p>0</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div> 
+                <div class="uk-flex uk-align-center" uk-grid>
+                    <div class="uk-width-1-3@s uk-card uk-card-default uk-card-body">
+                        <div><span class="" uk-icon="link-external"></span> Quick Access</div>
+                            <button class="uk-button uk-button-default uk-width-1-1 uk-margin-remove-bottom"><a
+                                class="uk-link-muted uk-text-capitalize" href="">Cards in collection</a></button>
+                        <button class="uk-button uk-button-default uk-width-1-1 uk-margin-remove-bottom"><a
+                                class="uk-link-muted uk-text-capitalize" href="">Series in collection</a></button>
+                                    <button class="uk-button uk-button-default uk-width-1-1 uk-margin-remove-bottom"><a
+                                        class="uk-link-muted uk-text-capitalize" href="">Cards in wishlist</a></button>
+                                                
+                    </div>
+                    <div class="uk-width-expand">
+                        <div class="uk-width-1-4@s ">
+                            <div class="uk-card uk-card-default uk-card-body">Cards Per Rarity: <p>0</p>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+           
+        </div>
+
+
+        <%- include('footer') %>
 </body>
+
 </html>

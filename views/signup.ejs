@@ -65,9 +65,8 @@
                     const registerButton = document.getElementById('registerButton');
 
                     registerButton.addEventListener('click', function (event) {
-                        event.preventDefault(); // Prevent form submission
+                        event.preventDefault(); 
 
-                        // Retrieve input values
                         const user = document.getElementById('user').value;
                         const password = document.getElementById('password').value;
                         const confirmPassword = document.getElementById('confirmPassword').value;
@@ -87,8 +86,6 @@
                             createAlert('Username cannot contain special characters or symbols');
                             return;
                         }
-
-                        // Check if passwords match
                         if (password !== confirmPassword) {
                             createAlert('Passwords do not match.');
                             return;
@@ -108,26 +105,25 @@
                             },
                             body: JSON.stringify(formData)
                         })
-                            .then(response => {
-                                if (!response.ok) {
-                                    throw new Error('Network response was not ok');
-                                }
-                                return response.json();
-                            })
-                            .then(data => {
-                                if (data.alreadyExistmessage) {
-                                    console.log(data.mesalreadyExistmessageage);
-                                    createAlert(data.alreadyExistmessage);
-                                    return;
-                                } else if (data.successMessage) {
-                                    createSuccessAlert(data.successMessage);
-                                }
-                            })
-                            .catch(error => {
-                                // Handle registration error
-                                console.error('Error registering user:', error);
-                                alert('Error registering user');
-                            });
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.alreadyExistmessage) {
+                                createAlert(data.alreadyExistmessage);
+                                return;
+                            } else if (data.successMessage) {
+                                createSuccessAlert(data.successMessage);
+                            }
+                        })
+                        .catch(error => {
+                            // Handle registration error
+                            console.error('Error registering user:', error);
+                            alert('Error registering user');
+                        });
                     });
                 });
 

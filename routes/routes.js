@@ -1,71 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const { fetchAndStoreData, fetchAndStoreSeriesData } = require('./fetchAllData');
-const bcrypt = require('bcrypt');
-
-const mysql = require('mysql');
-
-
-const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'root',
-    database: 'tcgcove',
-    port: '3306',
-    multipleStatements: true
-});
-
-
-
-connection.connect((err) => {
-    if (err) {
-        console.error('Error connecting to MySQL:', err);
-        return;
-    }
-    console.log('Connected to MySQL server');
-});
-
+const connection = require('./database');
 
 const util = require('util');
 const queryAsync = util.promisify(connection.query).bind(connection);
 
-router.post("/registerAccount", async (req, res) => {
-    const user = req.body.user;
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
-    console.log('username:', user);
-    console.log('hashedpassword: ', hashedPassword);
-    console.log('password: ', req.body.password);
-
-    const sqlSearch = "SELECT * FROM account WHERE user_name = ?";
-    const sqlInsert = "INSERT INTO account (user_name, user_password) VALUES (?,?)";
-
-    connection.query(sqlSearch, [user], async (err, result) => {
-        if (err) {
-            console.error('Error searching user:', err);
-            res.status(500).json({ error: 'Internal Server Error' });
-            return;
-        }
-
-        console.log("------> Search Results:", result.length);
-
-        if (result.length !== 0) {
-            console.log("------> User already exists");
-            res.json({ alreadyExistmessage: 'Looks like you already have an account, proceed to login instead!' });
-        } else {
-            connection.query(sqlInsert, [user, hashedPassword], (err, result) => {
-                if (err) {
-                    console.error('Error inserting user:', err);
-                    res.status(500).json({ error: 'Internal Server Error' });
-                    return;
-                }
-
-                console.log("--------> Created new User:", result.insertId);
-                res.json({ successMessage: 'Account created successfully!' });
-            });
-        }
-    });
-});
 
 
 
@@ -745,6 +686,5 @@ async function insertCardsSetFromDpSeriesData(dpSeriesData) {
 
 router.use(fetchAllFromDatabase);
 module.exports = router;
-
 
 

@@ -19,8 +19,11 @@
             <div class="uk-flex-first uk-width-1-3@s uk-container">
                 <div class="uk-text-bolder uk-text-center uk-text-bottom uk-text-emphasis">
                     <%= selectedCardInfo.name %>
-                    
+                    <% if (selectedCardInfo.evolveFrom) { %>    
                 </div><dd class="uk-text-small uk-margin-bottom uk-text-center"><%= selectedCardInfo.stage %> - Evolves from <%= selectedCardInfo.evolveFrom %></dd>
+                <% } else { %>
+                </div><dd class="uk-text-small uk-margin-bottom uk-text-center"><%= selectedCardInfo.stage %></dd>
+                    <% } %>
                 <img class="uk-border-rounded " src="<%= selectedCardInfo.image %>/high.webp" alt="">
                 <div class=""><button uk-icon="heart"></button></div>
 

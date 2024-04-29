@@ -1,9 +1,9 @@
 const express = require('express');
 const path = require('path');
-const app = express();
+const { sessionConfig } = require('./routes/config');
 const fs = require('fs');
 
-
+const app = express();
 
 // middleware
 app.use(express.urlencoded({ extended: true }));
@@ -13,15 +13,22 @@ app.set('view engine', 'ejs');
 
 
 
-
 // routes
-const routes = require('./routes/routes');
+const publicRoutes = require('./routes/routes');
+const authRoutes = require('./routes/authRoutes');
 
 try {
-    app.use('/', routes);
-    console.log('Setting up route');
+    app.use('/', publicRoutes);
+    console.log('Setting up public routes');
 } catch (error) {
-    console.error('Error setting up routes:', error);
+    console.error('Error setting up public routes:', error);
+}
+
+try {
+    app.use('/', authRoutes);
+    console.log('Setting up auth routes');
+} catch (error) {
+    console.error('Error setting up public routes:', error);
 }
 
 app.get('/:template', (req, res) => {
@@ -41,15 +48,6 @@ app.get('/:template', (req, res) => {
         }
     });
 });
-
-
-
-
-
-
-
-
-
 
 const port = 3000;
 app.listen(port, () => {

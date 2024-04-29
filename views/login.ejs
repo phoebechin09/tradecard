@@ -13,41 +13,103 @@
 
 <body>
     <%- include('navbar') %>
+        <div id="alert-container"></div>
 
-    <div class="uk-child-width-1-2@s"></div>
+        <div class="uk-child-width-1-2@s"></div>
 
-    <div class="uk-flex uk-flex-center  uk-flex-middle uk-height-viewport">
-        <div class="uk-card uk-card-default uk-card-large uk-card-body uk-container uk-flex-column">
-            <h3 class="uk-card-title">Login</h3>
+        <div class="uk-flex uk-flex-center  uk-flex-middle uk-height-viewport">
+            <div class="uk-card uk-card-default uk-card-large uk-card-body uk-container uk-flex-column">
+                <h3 class="uk-card-title">Login</h3>
 
-            <div class="uk-flex-column">
-                <div class="uk-margin uk-inline ">
-                    <span class="uk-form-icon" uk-icon="icon: user"></span>
-                    <input class="uk-input" type="text" placeholder="username" aria-label="Not clickable icon">
+                <div class="uk-flex-column">
+                    <div class="uk-margin uk-inline ">
+                        <span class="uk-form-icon" uk-icon="icon: user"></span>
+                        <input id="user" class="uk-input" type="text" placeholder="username"
+                            aria-label="Not clickable icon">
+                    </div>
                 </div>
-            </div>
 
-            <div class="uk-flex-column">
-                <div class="uk-margin uk-inline uk-flex-column">
-                    <span class="uk-form-icon" uk-icon="icon: lock"></span>
-                    <input class="uk-input" type="password" placeholder="••••••••" aria-label="Not clickable icon">
+                <div class="uk-flex-column">
+                    <div class="uk-margin uk-inline uk-flex-column">
+                        <span class="uk-form-icon" uk-icon="icon: lock"></span>
+                        <input id="password" class="uk-input" type="password" placeholder="••••••••"
+                            aria-label="Not clickable icon">
+                    </div>
                 </div>
-            </div>
 
 
-            <div class="uk-margin">
-                <button class="uk-button uk-button-default">Enter</button>
-            </div>
-            
-            <div>
-                <h6>Don't have an account?<small> Create account<a href="signup"> here</a></small></h6>
-                
-            </div>
+                <div class="uk-margin">
+                    <button id="loginButton" class="uk-button uk-button-default">Enter</button>
+                </div>
 
+                <div>
+                    <h6>Don't have an account?<small> Create account<a href="signup"> here</a></small></h6>
+
+                </div>
+
+            </div>
         </div>
-    </div>
 
-    <%- include('footer') %>
+        <%- include('footer') %>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const loginButton = document.getElementById('loginButton');
+
+                    loginButton.addEventListener('click', function (event) {
+                        event.preventDefault();
+
+                        const user = document.getElementById('user').value;
+                        const password = document.getElementById('password').value;
+
+                        if (!password || !user) {
+                            createAlert('Please fill in all inputs in form.');
+                            return;
+                        }
+
+                        const formData = {
+                            user: user,
+                            password: password
+                        };
+                        fetch('/loginToAccount', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(formData)
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                console.log('directing to dashboard')
+                                window.location.href = '/dashboard';
+                            } else if (data.message) {
+                                createAlert(data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error logging in user:', error);
+                            alert('Error logging in user');
+                        });
+                    });
+                });
+
+
+                function createAlert(message) {
+                    const alertDiv = document.createElement('div');
+                    alertDiv.classList.add('uk-alert', 'uk-alert-danger');
+                    alertDiv.setAttribute('uk-alert', '');
+                    alertDiv.innerHTML = `<a class="uk-alert-close" uk-close></a><p>${message}</p>`;
+
+                    const alertContainer = document.getElementById('alert-container');
+                    alertContainer.appendChild(alertDiv);
+                }
+            </script>
 </body>
 
 
