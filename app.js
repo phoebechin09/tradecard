@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const { sessionConfig } = require('./routes/config');
+const { sessionConfig, isAuthenticated } = require('./routes/config');
 const fs = require('fs');
 
 const app = express();
@@ -31,6 +31,7 @@ try {
     console.error('Error setting up public routes:', error);
 }
 
+
 app.get('/:template', (req, res) => {
     const templateName = req.params.template;
     const templatePath = path.join(__dirname, 'views', `${templateName}.ejs`);
@@ -43,7 +44,8 @@ app.get('/:template', (req, res) => {
             res.render(templateName, {
                 seriesData: res.locals.seriesData,
                 setData: res.locals.setData,
-                cardData: res.locals.cardData
+                cardData: res.locals.cardData,
+                isAuthenticated: req.session.authenticated
             });
         }
     });

@@ -28,7 +28,7 @@ router.post("/registerAccount", async (req, res) => {
 
         if (result.length !== 0) {
             console.log("------> User already exists");
-            res.json({ alreadyExistmessage: 'Looks like you already have an account, proceed to login instead!' });
+            res.json({ alreadyExistmessage: 'This username already exists!' });
         } else {
             connection.query(sqlInsert, [user, hashedPassword], (err, result) => {
                 if (err) {
@@ -36,9 +36,15 @@ router.post("/registerAccount", async (req, res) => {
                     res.status(500).json({ error: 'Internal Server Error' });
                     return;
                 }
-
                 console.log("--------> Created new User:", result.insertId);
-                res.json({ successMessage: 'Account created successfully!' });
+                const userId = result.insertId;
+                const sessionobj = req.session;
+                sessionobj.userName = user;
+                sessionobj.userId = userId;
+                req.session.authenticated = true;
+                console.log("------> Successful Registration");
+                res.status(200).json({ success: true });
+                console.log('status sent to client side');
             });
         }
     });
@@ -112,13 +118,27 @@ router.get('/dashboard', isAuthenticated, async (req, res) => {
         }
         res.locals.userCollection = mappedCollection;
         console.log('User collection:', res.locals.userCollection);
-        res.render('dashboard', { user: req.session.userName, userCollection: res.locals.userCollection });
+        res.render('dashboard', { user: req.session.userName, userCollection: res.locals.userCollection, isAuthenticated: req.session.authenticated });
     } catch (error) {
         console.error('Error fetching user collection:', error);
         res.status(500).send('Error fetching user collection');
     }
 });
 
+// Logout route handler
+router.get('/logout', (req, res) => {
+    // Destroy the session
+    req.session.destroy(err => {
+        if (err) {
+            console.error('Error destroying session:', err);
+            res.status(500).json({ error: 'Internal Server Error' });
+            return;
+        }
+        console.log('Session destroyed');
+        console.log("------> Successful Logout");
+        res.status(200).json({ success: true });
+    });
+});
 
 
 // Route handlers

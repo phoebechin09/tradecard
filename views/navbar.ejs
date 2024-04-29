@@ -22,9 +22,9 @@
                         <div class="uk-navbar-left">
 
                             <div class="uk-flex uk-grid-small " style="align-items: center">
-                                <a href="tradecard"><i class="gg-pokemon"
-                                        alt="Website Logo"></i></a>
-                                <a class="uk-link-reset uk-text-emphasis uk-text-bolder uk-margin-small-right" href="tradecard">TCG Cove</a>
+                                <a href="tradecard"><i class="gg-pokemon" alt="Website Logo"></i></a>
+                                <a class="uk-link-reset uk-text-emphasis uk-text-bolder uk-margin-small-right"
+                                    href="tradecard">TCG Cove</a>
                             </div>
 
 
@@ -60,8 +60,12 @@
                                     <div class="uk-navbar-dropdown"
                                         uk-dropdown="boundary: !.uk-navbar; stretch: x; flip: false">
                                         <ul class="uk-nav uk-dropdown-nav">
-                                            <li><a href="#">Set 1</a></li>
-                                            <li><a href="#">Set 2</a></li>
+                                            <li><a href="/set_cards_list/<%= setData[0].id %>">
+                                                    <%= setData[0].name %>
+                                                </a></li>
+                                            <li><a href="/set_cards_list/<%= setData[1].id %>">
+                                                    <%= setData[1].name %>
+                                                </a></li>
                                             <li class="uk-nav-divider"></li>
                                             <li><a href="/cards">All Cards</a></li>
                                         </ul>
@@ -79,8 +83,15 @@
                                     <a href="#" uk-icon="icon: user"></a>
                                     <div class="uk-navbar-dropdown">
                                         <ul class="uk-nav uk-navbar-dropdown-nav">
-                                            <li><a href="login">Login</a></li>
-                                            <li><a href="signup">Create Account</a></li>
+                                            <% if (!isAuthenticated) { %>
+                                                <li><a href="login">Login</a></li>
+                                                <li><a href="signup">Create Account</a></li>
+                                                <% } else if (isAuthenticated) { %>
+                                                    <li><a href="/cardsincollection">Cards in collection</a></li>
+                                                    <li><a href="/seriesincollection">Series in collection</a></li>
+                                                    <li class="uk-nav-divider"></li>
+                                                    <li><a href="" onclick="logout()">Logout</a></li>
+                                                    <% } %>
                                         </ul>
                                     </div>
                                 </li>
@@ -93,6 +104,31 @@
 
         </div>
     </div>
+
+
+    <script>
+        function logout() {
+            fetch('/logout', {
+                method: 'GET',
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        console.log('directing to login')
+                        window.location.href = '/login';
+                    }
+                })
+                .catch(error => {
+                    console.error('Logout error:', error);
+                });
+        }
+    </script>
+
 
 </body>
 

@@ -112,11 +112,11 @@
                             return response.json();
                         })
                         .then(data => {
-                            if (data.alreadyExistmessage) {
+                            if (data.success) {
+                                console.log('directing to dashboard')
+                                window.location.href = '/dashboard';
+                            } else if (data.alreadyExistmessages) {
                                 createAlert(data.alreadyExistmessage);
-                                return;
-                            } else if (data.successMessage) {
-                                createSuccessAlert(data.successMessage);
                             }
                         })
                         .catch(error => {
