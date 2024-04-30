@@ -2,13 +2,14 @@ const express = require('express');
 const router = express.Router();
 const { fetchAndStoreData, fetchAndStoreSeriesData } = require('./fetchAllData');
 const connection = require('./database');
-
+const { sessionConfig, isAuthenticated } = require('./config');
 const util = require('util');
 const queryAsync = util.promisify(connection.query).bind(connection);
+const session = require('express-session');
 
 
 
-
+router.use(session(sessionConfig));
 
 
 
@@ -132,6 +133,7 @@ router.get(`/series_sets_list/:seriesId`, fetchSelectedSeriesAndSetData, (req, r
     res.render('series_sets_list', {
         selectedSeriesData: res.locals.selectedSeriesData,
         selectedSetData: res.locals.selectedSetData,
+        isAuthenticated: req.session.authenticated
     });
 });
 const fetchSelectedSetAndCardData = async (req, res, next) => {
@@ -162,6 +164,7 @@ router.get(`/set_cards_list/:setId`, fetchSelectedSetAndCardData, (req, res) => 
     res.render('set_cards_list', {
         selectedSetData: res.locals.selectedSetData,
         selectedCardData: res.locals.selectedCardData,
+        isAuthenticated: req.session.authenticated
     });
 });
 
@@ -245,14 +248,68 @@ const fetchSelectedCardData = async (req, res, next) => {
     next();
 };
 
-router.get(`/cardinfo/:cardId`, fetchSelectedCardData, (req, res) => {
-    res.render('cardinfo', {
-        selectedCardInfo: res.locals.selectedCardData[0],
-        selectedOtherInfo: res.locals.filteredData,
-        selectedAttackInfo: res.locals.filteredAttackData,
-        selectedWeaknessInfo: res.locals.filteredWeaknessData[0]
-    });
+
+
+router.get(`/cardinfo/:cardId`, fetchSelectedCardData, async (req, res) => {
+    if (req.session.authenticated) {
+        const userId = req.session.userId;
+        const cardId = res.locals.selectedCardData[0].PKId;
+        try {
+            const normalVariantQuery = `SELECT COUNT(*) AS normal_count FROM user_collection WHERE variant = 'Normal' AND user_id = ? AND card_PK_id = ?`;
+            const normalVariantRows = await queryAsync(normalVariantQuery, [userId, cardId]);
+
+            if (normalVariantRows.length > 0) {
+                const normalVariantCount = normalVariantRows[0].normal_count;
+                res.locals.normalVariantCount = normalVariantCount;
+            } else {
+                console.error('No rows returned for normal variant count');
+                res.status(500).send('No rows returned for normal variant count');
+            }
+        } catch (error) {
+            console.error('Error fetching normal variant count:', error);
+            res.status(500).send('Error fetching normal variant count');
+        }
+        try {
+            const holoVariantQuery = `SELECT COUNT(*) AS holo_count FROM user_collection WHERE variant = 'Reverse Holo' AND user_id = ? AND card_PK_id = ?`;
+            const holoVariantRows = await queryAsync(holoVariantQuery, [userId, cardId]);
+
+            if (holoVariantRows.length > 0) {
+                const holoVariantCount = holoVariantRows[0].holo_count;
+
+                res.locals.holoVariantCount = holoVariantCount;
+            } else {
+                console.error('No rows returned for holo variant count');
+                res.status(500).send('No rows returned for holo variant count');
+            }
+        } catch (error) {
+            console.error('Error fetching holo variant count:', error);
+            res.status(500).send('Error fetching holo variant count');
+        }
+        res.locals.totalCount = res.locals.holoVariantCount + res.locals.normalVariantCount;
+
+
+        res.render('cardinfo', {
+            selectedCardInfo: res.locals.selectedCardData[0],
+            selectedOtherInfo: res.locals.filteredData,
+            selectedAttackInfo: res.locals.filteredAttackData,
+            selectedWeaknessInfo: res.locals.filteredWeaknessData,
+            isAuthenticated: req.session.authenticated,
+            user: req.session.userName,
+            normalVarCount: res.locals.normalVariantCount,
+            holoVarCount: res.locals.holoVariantCount,
+            totalCount: res.locals.totalCount
+        });
+    } else {
+        res.render('cardinfo', {
+            selectedCardInfo: res.locals.selectedCardData[0],
+            selectedOtherInfo: res.locals.filteredData,
+            selectedAttackInfo: res.locals.filteredAttackData,
+            selectedWeaknessInfo: res.locals.filteredWeaknessData,
+            isAuthenticated: req.session.authenticated
+        });
+    }
 });
+
 
 router.get('/searchCardsKeyword', (req, res) => {
     const searchQuery = req.query.q;

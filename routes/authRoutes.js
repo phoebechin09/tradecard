@@ -96,33 +96,261 @@ router.post('/loginToAccount', async (req, res) => {
 });
 
 router.get('/dashboard', isAuthenticated, async (req, res) => {
-    console.log('Router handling dashboard...');
-    const userId = req.session.userId;
-
-    let mappedCollection = null;
-    // Query to fetch data from MySQL where user_id matches
-    const query = `SELECT user_collection.* FROM user_collection JOIN account ON user_collection.user_collection_id = account.user_collection_id WHERE account.user_id = ?`;
-
+        console.log(req.session.userName);
+         console.log('Router handling dashboard...');
+         const userId = req.session.userId;
     try {
-        const collectionQuery = queryAsync(query, [userId]);
+        
+        console.log(userId);
+        // Query to fetch data from MySQL where user_id matches
+        const query = `SELECT * FROM user_collection WHERE user_id = ?`;
+
+
+        const collectionQuery = await queryAsync(query, [userId]);
         console.log(collectionQuery);
         if (collectionQuery.length > 0) {
-            mappedCollection = collectionQuery.map(collectionItem => ({
+            const mappedCollection = collectionQuery.map(collectionItem => ({
                 variant: collectionItem.variant,
-                userId: collectionItem.user_id
+                cardPKId: collectionItem.card_PK_id
             }));
-
+            res.locals.userCollection = mappedCollection;
             console.log('mapped collection');
         } else {
             console.log('empty collection');
+            res.locals.userCollection = null;
         }
-        res.locals.userCollection = mappedCollection;
+
         console.log('User collection:', res.locals.userCollection);
-        res.render('dashboard', { user: req.session.userName, userCollection: res.locals.userCollection, isAuthenticated: req.session.authenticated });
+
     } catch (error) {
         console.error('Error fetching user collection:', error);
         res.status(500).send('Error fetching user collection');
     }
+
+
+    try {
+        
+        const normalVariantQuery = `SELECT COUNT(*) AS normal_count FROM user_collection WHERE variant = 'Normal' AND user_id = ?`;
+        const normalVariantRows = await queryAsync(normalVariantQuery, [userId]);
+
+        if (normalVariantRows.length > 0) {
+            const normalVariantCount = normalVariantRows[0].normal_count;
+            res.locals.normalVariantCount = normalVariantCount;
+        } else {
+            console.error('No rows returned for normal variant count');
+            res.status(500).send('No rows returned for normal variant count');
+        }
+    } catch (error) {
+        console.error('Error fetching normal variant count:', error);
+        res.status(500).send('Error fetching normal variant count');
+    }
+    try {
+        
+        const holoVariantQuery = `SELECT COUNT(*) AS holo_count FROM user_collection WHERE variant = 'Reverse Holo' AND user_id = ?`;
+        const holoVariantRows = await queryAsync(holoVariantQuery, [userId]);
+
+        if (holoVariantRows.length > 0) {
+            const holoVariantCount = holoVariantRows[0].holo_count;
+
+            res.locals.holoVariantCount = holoVariantCount;
+        } else {
+            console.error('No rows returned for holo variant count');
+            res.status(500).send('No rows returned for holo variant count');
+        }
+    } catch (error) {
+        console.error('Error fetching holo variant count:', error);
+        res.status(500).send('Error fetching holo variant count');
+    }
+    res.locals.totalCount = res.locals.holoVariantCount + res.locals.normalVariantCount;
+
+try{
+    const uniqueQuery =  `SELECT COUNT(DISTINCT CONCAT(card_PK_id, '_', variant)) AS uniqueCount  FROM user_collection WHERE user_id = ?;`
+    uniqueRows = await queryAsync(uniqueQuery, [userId]);
+    if (uniqueRows.length > 0) {
+        const uniqueCount = uniqueRows[0].uniqueCount;
+        res.locals.uniqueCount = uniqueCount;
+    } else {
+        console.error('No rows returned for holo variant count');
+        res.status(500).send('No rows returned for holo variant count');
+    }
+
+} catch (error) {
+    console.error('Error fetching unique count:', error);
+    res.status(500).send('Error fetching unique count');
+}
+
+try{
+    const seriesCountQuery =  `SELECT COUNT(DISTINCT cs.series_PK_id) AS uniqueSeriesCount FROM user_collection uc JOIN card c ON uc.card_PK_id = c.card_PK_id JOIN card_set cs ON c.card_set_id = cs.card_set_id WHERE uc.user_id = ?;`
+    seriesCountRows = await queryAsync(seriesCountQuery, [userId]);
+    if (seriesCountRows.length > 0) {
+        const seriesCount = seriesCountRows[0].uniqueSeriesCount;
+        res.locals.seriesCount = seriesCount;
+    } else {
+        console.error('No rows returned for holo variant count');
+        res.status(500).send('No rows returned for holo variant count');
+    }
+
+} catch (error) {
+    console.error('Error fetching unique count:', error);
+    res.status(500).send('Error fetching unique count');
+}
+
+    
+    res.render('dashboard', {
+        user: req.session.userName,
+        userCollection: res.locals.userCollection,
+        isAuthenticated: req.session.authenticated,
+        normalVarCount: res.locals.normalVariantCount,
+        holoVarCount: res.locals.holoVariantCount,
+        totalCount: res.locals.totalCount,
+        uniqueCount: res.locals.uniqueCount,
+        seriesCount: res.locals.seriesCount
+    });
+});
+
+router.get('/wishlistStatus/:cardId', isAuthenticated, (req, res) => {
+    const userId = req.session.userId;
+    const cardId = req.params.cardId;
+
+    // SQL query to check if the card is in the user's wishlist
+    const query = 'SELECT COUNT(*) AS wishlist_exists FROM wishlist WHERE user_id = ? AND card_PK_id = ?';
+
+    connection.query(query, [userId, cardId], (err, result) => {
+        if (err) {
+            console.error('Error checking wishlist status:', err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else if (result[0].wishlist_exists > 0) {
+            res.json({ exists: true });
+        }
+    });
+});
+
+router.post('/addToWishlist', isAuthenticated, async (req, res) => {
+    console.log('router handling insert to wishlist...');
+    const cardPKId = req.body.cardPKId; // Extract item ID from request body
+
+    // Get userId from session
+    const userId = req.session.userId;
+
+    // SQL query to insert item into wishlist table
+    const insertQuery = 'INSERT INTO wishlist (user_id, card_PK_id) VALUES (?, ?)';
+
+    connection.query(insertQuery, [userId, cardPKId], (err, result) => {
+        if (err) {
+            console.error('Error adding item to wishlist:', err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            console.log('Item added to wishlist');
+        }
+    });
+
+});
+
+router.post('/removeFromWishlist', isAuthenticated, async (req, res) => {
+    console.log('router handling remove from wishlist...');
+    const cardPKId = req.body.cardPKId;
+
+    const userId = req.session.userId;
+    const deleteQuery = 'DELETE FROM wishlist WHERE user_id = ? AND card_PK_id = ?';
+
+    connection.query(deleteQuery, [userId, cardPKId], (err, result) => {
+        if (err) {
+            console.error('Error deleting item to wishlist:', err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            res.json({ success: true });
+            console.log('Item deleted from wishlist');
+        }
+    });
+});
+
+router.get('/collectionStatus/:cardId', isAuthenticated, (req, res) => {
+    const userId = req.session.userId;
+    const cardId = req.params.cardId;
+
+    // SQL query to check if the card is in the user's wishlist
+    const query = 'SELECT COUNT(*) AS collectionCoount FROM user_collection WHERE user_id = ? AND card_PK_id = ?';
+
+    connection.query(query, [userId, cardId], (err, result) => {
+        if (err) {
+            console.error('Error checking wishlist status:', err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else if (result[0].wishlist_exists > 0) {
+            res.json({ exists: true });
+        }
+    });
+});
+
+router.post('/addHoloToCollection', isAuthenticated, async (req, res) => {
+    console.log('router handling add holo to collection...');
+    const cardPKId = req.body.cardPKId;
+
+    const userId = req.session.userId;
+    const insertQuery = `INSERT INTO user_collection (user_id, card_PK_id, variant) VALUES (?, ?, 'Reverse Holo')`;
+
+    connection.query(insertQuery, [userId, cardPKId], (err, result) => {
+        if (err) {
+            console.error('Error adding holo to collectiont:', err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            res.json({ success: true });
+            console.log('Holo added to collection');
+        }
+    });
+});
+
+router.post('/addNormalToCollection', isAuthenticated, async (req, res) => {
+    console.log('router handling add normal to collection...');
+    const cardPKId = req.body.cardPKId;
+
+    const userId = req.session.userId;
+    const insertQuery = `INSERT INTO user_collection (user_id, card_PK_id, variant) VALUES (?, ?, 'Normal')`;
+
+    connection.query(insertQuery, [userId, cardPKId], (err, result) => {
+        if (err) {
+            console.error('Error adding normal to collectiont:', err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            res.json({ success: true });
+            console.log('Normal added to collection');
+        }
+    });
+});
+
+router.post('/rmNormalFromCollection', isAuthenticated, async (req, res) => {
+    console.log('router handling remove normal from collection...');
+    const cardPKId = req.body.cardPKId;
+
+    const userId = req.session.userId;
+    const rmQuery = `DELETE FROM user_collection WHERE user_id = ? AND card_PK_id = ? AND variant = 'Normal' LIMIT 1;`;
+
+    connection.query(rmQuery, [userId, cardPKId], (err, result) => {
+        if (err) {
+            console.error('Error adding normal to collectiont:', err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            res.json({ success: true });
+            console.log('Normal removed from collection');
+        }
+    });
+});
+
+router.post('/rmHoloFromCollection', isAuthenticated, async (req, res) => {
+    console.log('router handling remove holo from collection...');
+    const cardPKId = req.body.cardPKId;
+
+    const userId = req.session.userId;
+    const rmQuery = `DELETE FROM user_collection WHERE user_id = ? AND card_PK_id = ? AND variant = 'Reverse Holo' LIMIT 1;`;
+
+    connection.query(rmQuery, [userId, cardPKId], (err, result) => {
+        if (err) {
+            console.error('Error removing holo from collectiont:', err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            res.json({ success: true });
+            console.log('Removed holo from collection');
+        }
+    });
 });
 
 // Logout route handler
@@ -141,22 +369,5 @@ router.get('/logout', (req, res) => {
 });
 
 
-// Route handlers
-// function getUserDashboard(req, res) {
-//   // Implementation
-// }
-
-// function updateUserSettings(req, res) {
-//   // Implementation
-// }
-
-// function addCardToCollection(req, res) {
-//   // Implementation
-// }
-
-// // Routes requiring authentication
-// router.get('/dashboard', isAuthenticated, getUserDashboard);
-// router.post('/update-settings', isAuthenticated, updateUserSettings);
-// router.post('/add-card', isAuthenticated, addCardToCollection);
 
 module.exports = router;
