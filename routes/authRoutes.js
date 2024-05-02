@@ -95,16 +95,16 @@ router.post('/loginToAccount', async (req, res) => {
     });
 });
 
+// dashboard page *****************************************************************************************************
 router.get('/dashboard', isAuthenticated, async (req, res) => {
     console.log('Router handling dashboard...');
     const userId = req.session.userId;
     try {
 
         console.log(userId);
-        // Query to fetch data from MySQL where user_id matches
-        const query = `SELECT * FROM user_collection WHERE user_id = ?`;
-
-
+        const query = `SELECT * FROM user_collection 
+        JOIN user_collection_album ON user_collection_album.user_collection_album_id = user_collection.user_collection_album_id
+        WHERE user_collection_album.user_id = ?`;
         const collectionQuery = await queryAsync(query, [userId]);
         console.log(collectionQuery);
         if (collectionQuery.length > 0) {
@@ -129,7 +129,7 @@ router.get('/dashboard', isAuthenticated, async (req, res) => {
 
     try {
 
-        const normalVariantQuery = `SELECT COUNT(*) AS normal_count FROM user_collection WHERE variant = 'Normal' AND user_id = ?`;
+        const normalVariantQuery = `SELECT COUNT(*) AS normal_count  FROM user_collection JOIN  user_collection_album ON user_collection_album.user_collection_album_id = user_collection.user_collection_album_id WHERE variant = 'Normal' AND user_collection_album.user_id = ?;`;
         const normalVariantRows = await queryAsync(normalVariantQuery, [userId]);
 
         if (normalVariantRows.length > 0) {
@@ -145,7 +145,7 @@ router.get('/dashboard', isAuthenticated, async (req, res) => {
     }
     try {
 
-        const holoVariantQuery = `SELECT COUNT(*) AS holo_count FROM user_collection WHERE variant = 'Reverse Holo' AND user_id = ?`;
+        const holoVariantQuery = `SELECT COUNT(*) AS holo_count  FROM user_collection JOIN  user_collection_album ON user_collection_album.user_collection_album_id = user_collection.user_collection_album_id WHERE variant = 'Reverse Holo' AND user_collection_album.user_id = ?;`;
         const holoVariantRows = await queryAsync(holoVariantQuery, [userId]);
 
         if (holoVariantRows.length > 0) {
@@ -163,7 +163,7 @@ router.get('/dashboard', isAuthenticated, async (req, res) => {
     res.locals.totalCount = res.locals.holoVariantCount + res.locals.normalVariantCount;
 
     try {
-        const uniqueQuery = `SELECT COUNT(DISTINCT CONCAT(card_PK_id, '_', variant)) AS uniqueCount  FROM user_collection WHERE user_id = ?;`
+        const uniqueQuery = `SELECT COUNT(DISTINCT CONCAT(card_PK_id, '_', variant)) AS uniqueCount FROM user_collection JOIN user_collection_album ON user_collection_album.user_collection_album_id = user_collection.user_collection_album_id WHERE user_collection_album.user_id = ?;`
         uniqueRows = await queryAsync(uniqueQuery, [userId]);
         if (uniqueRows.length > 0) {
             const uniqueCount = uniqueRows[0].uniqueCount;
@@ -179,7 +179,12 @@ router.get('/dashboard', isAuthenticated, async (req, res) => {
     }
 
     try {
-        const seriesCountQuery = `SELECT COUNT(DISTINCT cs.series_PK_id) AS uniqueSeriesCount FROM user_collection uc JOIN card c ON uc.card_PK_id = c.card_PK_id JOIN card_set cs ON c.card_set_id = cs.card_set_id WHERE uc.user_id = ?;`
+        const seriesCountQuery = `SELECT COUNT(DISTINCT cs.series_PK_id) AS uniqueSeriesCount 
+        FROM user_collection uc 
+        JOIN card c ON uc.card_PK_id = c.card_PK_id 
+        JOIN card_set cs ON c.card_set_id = cs.card_set_id 
+        JOIN user_collection_album uca ON uc.user_collection_album_id = uca.user_collection_album_id 
+        WHERE uca.user_id = ?;`
         seriesCountRows = await queryAsync(seriesCountQuery, [userId]);
         if (seriesCountRows.length > 0) {
             const seriesCount = seriesCountRows[0].uniqueSeriesCount;
@@ -193,6 +198,10 @@ router.get('/dashboard', isAuthenticated, async (req, res) => {
         console.error('Error fetching unique count:', error);
         res.status(500).send('Error fetching unique count');
     }
+    console.log('NORMAL COUNT: ', res.locals.normalVariantCount);
+    console.log('HOLO COUNT: ', res.locals.holoVariantCount);
+    console.log('TOTAL COUNT: ', res.locals.totalCount);
+
     res.render('dashboard', {
         user: req.session.userName,
         userCollection: res.locals.userCollection,
@@ -209,7 +218,9 @@ router.get('/cardsincollection', isAuthenticated, async (req, res) => {
     const userId = req.session.userId;
     console.log('Router handling cards in collection...');
     try {
-        const userUniqueCardsQuery = `SELECT DISTINCT card.* FROM card JOIN user_collection ON card.card_PK_id = user_collection.card_PK_id WHERE user_collection.user_id = ?;`
+        const userUniqueCardsQuery = `SELECT DISTINCT card.* FROM card JOIN user_collection ON card.card_PK_id = user_collection.card_PK_id 
+        JOIN user_collection_album ON user_collection.user_collection_album_id = user_collection_album.user_collection_album_id 
+        WHERE user_collection_album.user_id = ?;`
         userUniqueCardsRows = await queryAsync(userUniqueCardsQuery, [userId]);
         if (userUniqueCardsRows.length > 0) {
             const mappedUniqueCards = userUniqueCardsRows.map(cardItem => ({
@@ -231,7 +242,7 @@ router.get('/cardsincollection', isAuthenticated, async (req, res) => {
                 setPKId: cardItem.card_set_id,
             }));
             res.locals.userUniqueCards = mappedUniqueCards;
-            console.log(res.locals.userUniqueCards);
+            // console.log(res.locals.userUniqueCards);
         } else {
             console.error('empty collection');
 
@@ -259,7 +270,13 @@ router.get('/cardsincollection', isAuthenticated, async (req, res) => {
 router.get('/seriesincollection', isAuthenticated, async (req, res) => {
     const userId = req.session.userId;
     try {
-        const userSeriesQuery = `SELECT DISTINCT s.*  FROM series s  JOIN card_set cs ON s.series_PK_id = cs.series_PK_id  JOIN card c ON cs.card_set_id = c.card_set_id  JOIN user_collection uc ON c.card_PK_id = uc.card_PK_id  WHERE uc.user_id = ?;`
+        const userSeriesQuery = `SELECT DISTINCT s.* 
+        FROM series s  
+        JOIN card_set cs ON s.series_PK_id = cs.series_PK_id  
+        JOIN card c ON cs.card_set_id = c.card_set_id  
+        JOIN user_collection uc ON c.card_PK_id = uc.card_PK_id  
+        JOIN user_collection_album uca ON uc.user_collection_album_id = uca.user_collection_album_id  
+        WHERE uca.user_id = ?;`
         userSeriesRows = await queryAsync(userSeriesQuery, [userId]);
         if (userSeriesRows.length > 0) {
             const mappedUniqueSeries = userSeriesRows.map(seriesItem => ({
@@ -293,11 +310,193 @@ router.get('/seriesincollection', isAuthenticated, async (req, res) => {
     });
 });
 
-router.get('/seriescardsincollection', isAuthenticated, (req, res) => {
-    const userId = req.session.userId;
+
+// user collections page *****************************************************************************************************
+router.get('/otherscollections', isAuthenticated, async (req, res) => {
+    if (req.session.authenticated) {
+        const userId = req.session.userId;
+        try {
+            const otherCollectionQuery = `SELECT user_collection_album.*, account.user_name FROM user_collection_album 
+            JOIN account ON  account.user_id = user_collection_album.user_id
+            WHERE account.user_id != ?;
+            `;
+            const otherCollectionRows = await queryAsync(otherCollectionQuery, [userId]);
+
+            if (otherCollectionRows.length > 0) {
+                const mappedOthersCollection = otherCollectionRows.map(collectionItem => ({
+                    userAlbumId: collectionItem.user_collection_album_id,
+                    otherUserId: collectionItem.user_id,
+                    name: collectionItem.user_name,
+                }));
+                res.locals.otherUserCollection = mappedOthersCollection;
+            } else {
+                console.log('empty collection');
+                res.locals.otherUserCollection = null;
+            }
+        } catch (error) {
+            console.error('Error fetching collection:', error);
+            res.status(500).send('Error fetching collection');
+        }
+        res.render('otherscollections', {
+            user: req.session.userName,
+            userCollection: res.locals.userCollection,
+            isAuthenticated: req.session.authenticated,
+            otherUserCollectionList: res.locals.otherUserCollection,
+        });
+
+    }
+});
+
+router.get('/othersccollectioninfo/:userId', isAuthenticated, async (req, res) => {
+
+    try {
+        const userName = req.params.userId;
+        const otherCollectionQuery = `SELECT user_collection_album.*, account.user_name FROM user_collection_album 
+        JOIN account ON  account.user_id = user_collection_album.user_id
+        WHERE account.user_name = ?;
+        `;
+        const otherCollectionRows = await queryAsync(otherCollectionQuery, [userName]);
+
+        if (otherCollectionRows.length > 0) {
+            const mappedOthersCollection = otherCollectionRows.map(collectionItem => ({
+                userAlbumId: collectionItem.user_collection_album_id,
+                otherUserId: collectionItem.user_id,
+                name: collectionItem.user_name,
+            }));
+            res.locals.otherUser = mappedOthersCollection;
+            // console.log('other user:', mappedOthersCollection);
+            console.log('mapped other user');
+        } else {
+            console.log('empty other user');
+            res.locals.otherUser = null;
+        }
+    } catch (error) {
+        console.error('Error fetching collection:', error);
+        res.status(500).send('Error fetching collection');
+    }
+    try {
+        const userName = req.params.userId;
+        const userUniqueCardsQuery = `SELECT DISTINCT card.* FROM card JOIN user_collection ON card.card_PK_id = user_collection.card_PK_id JOIN 
+        user_collection_album ON user_collection_album.user_collection_album_id = user_collection.user_collection_album_id
+        JOIN account ON user_collection_album.user_id = account.user_id WHERE account.user_name = ?;`
+        userUniqueCardsRows = await queryAsync(userUniqueCardsQuery, [userName]);
+        if (userUniqueCardsRows.length > 0) {
+            const mappedUniqueCards = userUniqueCardsRows.map(cardItem => ({
+                PKId: cardItem.card_PK_id,
+                id: cardItem.card_id,
+                localId: cardItem.local_id,
+                illustrator: cardItem.illustrator,
+                image: cardItem.image,
+                name: cardItem.name,
+                hp: cardItem.hp,
+                abilityType: cardItem.ability_type,
+                abilityName: cardItem.ability_name,
+                abilityEffect: cardItem.ability_effect,
+                evolveFrom: cardItem.evolveFrom,
+                energyType: cardItem.energy_type,
+                rarity: cardItem.rarity,
+                stage: cardItem.stage,
+                setName: cardItem.card_set_name,
+                setPKId: cardItem.card_set_id,
+            }));
+            res.locals.otherUserCards = mappedUniqueCards;
+        } else {
+            console.error('empty collection');
+
+        }
+    } catch (error) {
+        console.error('Error fetching other user collection info:', error);
+        res.status(500).send('Error fetching other user collection info');
+    }
+    try {
+        const userName = req.params.userId;
+        const otherCollectionLikesQuery = `SELECT COUNT(user_collection_hearts.user_collection_album_id) AS hearts_count
+        FROM user_collection_hearts
+        JOIN account ON user_collection_hearts.user_id = account.user_id
+        WHERE account.user_name = ?;
+        `;
+        const otherCollectionLikeRows = await queryAsync(otherCollectionLikesQuery, [userName]);
+
+        if (otherCollectionLikeRows.length > 0) {
+            const heartCount = otherCollectionLikeRows[0].hearts_count
+            res.locals.heartsCount = heartCount;
+            console.log('Liked count:', heartCount);
+        } else {
+            console.log('no likes');
+            res.locals.otherUserLikes = 0;
+        }
+    } catch (error) {
+        console.error('Error fetching collection:', error);
+        res.status(500).send('Error fetching collection');
+    }
+
+    res.render('othersccollectioninfo', {
+        currentUser: req.session.userName,
+        isAuthenticated: req.session.authenticated,
+        userSeries: res.locals.userSeries,
+        otherUserCollection: res.locals.otherUser,
+        otherUserCards: res.locals.otherUserCards,
+        userName: req.params.userId,
+        heartsCount: res.locals.heartsCount
+    });
 
 });
 
+router.get('/heartCollectionStatus/:userAlbumId', isAuthenticated, (req, res) => {
+    const currentUserId = req.session.userId;
+    const userAlbumId = req.params.userAlbumId;
+
+    const query = 'SELECT COUNT(*) AS albumheart_exists FROM user_collection_hearts WHERE user_id = ? AND user_collection_album_id = ?';
+
+    connection.query(query, [currentUserId, userAlbumId], (err, result) => {
+        if (err) {
+            console.error('Error checking wishlist status:', err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else if (result[0].albumheart_exists > 0) {
+            console.log('heart exists');
+            res.json({ exists: true });
+        }
+    });
+});
+
+router.post('/heartAlbum', isAuthenticated, async (req, res) => {
+    console.log('router handling heart album...');
+    const userAlbumId = req.body.userAlbumId;
+    const userId = req.session.userId;
+
+    const insertQuery = 'INSERT INTO user_collection_hearts (user_id, user_collection_album_id) VALUES (?, ?)';
+
+    connection.query(insertQuery, [userId, userAlbumId], (err, result) => {
+        if (err) {
+            console.error('Error adding item to wishlist:', err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            res.json({ success: true });
+            console.log('Heart Collection inserted');
+        }
+    });
+});
+
+router.post('/unheartAlbum', isAuthenticated, async (req, res) => {
+    console.log('router handling unheart album...');
+    const userAlbumId = req.body.userAlbumId;
+    const userId = req.session.userId;
+
+    const rmQuery = 'DELETE FROM user_collection_hearts WHERE user_id = ? AND user_collection_album_id = ?';
+
+    connection.query(rmQuery, [userId, userAlbumId], (err, result) => {
+        if (err) {
+            console.error('Error remving heart from collection:', err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            res.json({ success: true });
+            console.log('Heart Collection removed');
+        }
+    });
+});
+
+
+// wishlist ****************************************************************************************************************************
 router.get('/wishlist', isAuthenticated, async (req, res) => {
     const userId = req.session.userId;
     try {
@@ -360,9 +559,7 @@ router.get('/wishlistStatus/:cardId', isAuthenticated, (req, res) => {
 
 router.post('/addToWishlist', isAuthenticated, async (req, res) => {
     console.log('router handling insert to wishlist...');
-    const cardPKId = req.body.cardPKId; // Extract item ID from request body
-
-    // Get userId from session
+    const cardPKId = req.body.cardPKId;
     const userId = req.session.userId;
 
     // SQL query to insert item into wishlist table
@@ -397,29 +594,30 @@ router.post('/removeFromWishlist', isAuthenticated, async (req, res) => {
     });
 });
 
-router.get('/collectionStatus/:cardId', isAuthenticated, (req, res) => {
-    const userId = req.session.userId;
-    const cardId = req.params.cardId;
+// add to collection **************************************************************************************************************************
+// router.get('/collectionStatus/:cardId', isAuthenticated, (req, res) => {
+//     const userId = req.session.userId;
+//     const cardId = req.params.cardId;
 
-    // SQL query to check if the card is in the user's wishlist
-    const query = 'SELECT COUNT(*) AS collectionCoount FROM user_collection WHERE user_id = ? AND card_PK_id = ?';
 
-    connection.query(query, [userId, cardId], (err, result) => {
-        if (err) {
-            console.error('Error checking wishlist status:', err);
-            res.status(500).json({ error: 'Internal Server Error' });
-        } else if (result[0].wishlist_exists > 0) {
-            res.json({ exists: true });
-        }
-    });
-});
+//     const query = 'SELECT COUNT(*) AS collectionCount FROM user_collection WHERE user_id = ? AND card_PK_id = ?';
+
+//     connection.query(query, [userId, cardId], (err, result) => {
+//         if (err) {
+//             console.error('Error checking collection status:', err);
+//             res.status(500).json({ error: 'Internal Server Error' });
+//         } else if (result[0].collectionCount > 0) {
+//             res.json({ exists: true });
+//         }
+//     });
+// });
 
 router.post('/addHoloToCollection', isAuthenticated, async (req, res) => {
     console.log('router handling add holo to collection...');
     const cardPKId = req.body.cardPKId;
 
     const userId = req.session.userId;
-    const insertQuery = `INSERT INTO user_collection (user_id, card_PK_id, variant) VALUES (?, ?, 'Reverse Holo')`;
+    const insertQuery = `INSERT INTO user_collection (user_collection_album_id, card_PK_id, variant) VALUES ((SELECT user_collection_album_id FROM user_collection_album WHERE user_id = ?), ?, 'Reverse Holo');`;
 
     connection.query(insertQuery, [userId, cardPKId], (err, result) => {
         if (err) {
@@ -437,7 +635,7 @@ router.post('/addNormalToCollection', isAuthenticated, async (req, res) => {
     const cardPKId = req.body.cardPKId;
 
     const userId = req.session.userId;
-    const insertQuery = `INSERT INTO user_collection (user_id, card_PK_id, variant) VALUES (?, ?, 'Normal')`;
+    const insertQuery = `INSERT INTO user_collection (user_collection_album_id, card_PK_id, variant) VALUES ((SELECT user_collection_album_id FROM user_collection_album WHERE user_id = ?), ?, 'Normal');`;
 
     connection.query(insertQuery, [userId, cardPKId], (err, result) => {
         if (err) {
@@ -455,11 +653,15 @@ router.post('/rmNormalFromCollection', isAuthenticated, async (req, res) => {
     const cardPKId = req.body.cardPKId;
 
     const userId = req.session.userId;
-    const rmQuery = `DELETE FROM user_collection WHERE user_id = ? AND card_PK_id = ? AND variant = 'Normal' LIMIT 1;`;
+    const rmQuery = `DELETE FROM user_collection 
+    WHERE user_collection_album_id = (SELECT user_collection_album_id FROM user_collection_album WHERE user_id = ?) 
+    AND card_PK_id = ? 
+    AND variant = 'Normal' 
+    LIMIT 1;`;
 
     connection.query(rmQuery, [userId, cardPKId], (err, result) => {
         if (err) {
-            console.error('Error adding normal to collectiont:', err);
+            console.error('Error removing normal from collection:', err);
             res.status(500).json({ error: 'Internal Server Error' });
         } else {
             res.json({ success: true });
@@ -473,11 +675,15 @@ router.post('/rmHoloFromCollection', isAuthenticated, async (req, res) => {
     const cardPKId = req.body.cardPKId;
 
     const userId = req.session.userId;
-    const rmQuery = `DELETE FROM user_collection WHERE user_id = ? AND card_PK_id = ? AND variant = 'Reverse Holo' LIMIT 1;`;
+    const rmQuery = `DELETE FROM user_collection 
+    WHERE user_collection_album_id = (SELECT user_collection_album_id FROM user_collection_album WHERE user_id = ?) 
+    AND card_PK_id = ? 
+    AND variant = 'Reverse Holo' 
+    LIMIT 1;`;
 
     connection.query(rmQuery, [userId, cardPKId], (err, result) => {
         if (err) {
-            console.error('Error removing holo from collectiont:', err);
+            console.error('Error removing holo from collection:', err);
             res.status(500).json({ error: 'Internal Server Error' });
         } else {
             res.json({ success: true });
@@ -488,7 +694,6 @@ router.post('/rmHoloFromCollection', isAuthenticated, async (req, res) => {
 
 // Logout route handler
 router.get('/logout', (req, res) => {
-    // Destroy the session
     req.session.destroy(err => {
         if (err) {
             console.error('Error destroying session:', err);

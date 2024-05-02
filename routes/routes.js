@@ -255,10 +255,11 @@ router.get(`/cardinfo/:cardId`, fetchSelectedCardData, async (req, res) => {
     if (req.session.authenticated) {
         const userId = req.session.userId;
         const cardId = res.locals.selectedCardData[0].PKId;
-        try {
-            const normalVariantQuery = `SELECT COUNT(*) AS normal_count FROM user_collection WHERE variant = 'Normal' AND user_id = ? AND card_PK_id = ?`;
-            const normalVariantRows = await queryAsync(normalVariantQuery, [userId, cardId]);
 
+
+        try {
+            const normalVariantQuery = `SELECT COUNT(*) AS normal_count  FROM user_collection JOIN  user_collection_album ON user_collection_album.user_collection_album_id = user_collection.user_collection_album_id WHERE variant = 'Normal' AND card_PK_id = ? AND user_collection_album.user_id = ?;`;
+            const normalVariantRows = await queryAsync(normalVariantQuery, [cardId, userId]);
             if (normalVariantRows.length > 0) {
                 const normalVariantCount = normalVariantRows[0].normal_count;
                 res.locals.normalVariantCount = normalVariantCount;
@@ -271,8 +272,8 @@ router.get(`/cardinfo/:cardId`, fetchSelectedCardData, async (req, res) => {
             res.status(500).send('Error fetching normal variant count');
         }
         try {
-            const holoVariantQuery = `SELECT COUNT(*) AS holo_count FROM user_collection WHERE variant = 'Reverse Holo' AND user_id = ? AND card_PK_id = ?`;
-            const holoVariantRows = await queryAsync(holoVariantQuery, [userId, cardId]);
+            const holoVariantQuery = `SELECT COUNT(*) AS holo_count  FROM user_collection JOIN  user_collection_album ON user_collection_album.user_collection_album_id = user_collection.user_collection_album_id WHERE variant = 'Reverse Holo' AND card_PK_id = ? AND user_collection_album.user_id = ?;`;
+            const holoVariantRows = await queryAsync(holoVariantQuery, [cardId, userId]);
 
             if (holoVariantRows.length > 0) {
                 const holoVariantCount = holoVariantRows[0].holo_count;
@@ -287,7 +288,9 @@ router.get(`/cardinfo/:cardId`, fetchSelectedCardData, async (req, res) => {
             res.status(500).send('Error fetching holo variant count');
         }
         res.locals.totalCount = res.locals.holoVariantCount + res.locals.normalVariantCount;
-
+        console.log('NORMAL COUNT: ', res.locals.normalVariantCount);
+        console.log('HOLO COUNT: ', res.locals.holoVariantCount);
+        console.log('TOTAL COUNT: ', res.locals.totalCount);
 
         res.render('cardinfo', {
             selectedCardInfo: res.locals.selectedCardData[0],
@@ -338,11 +341,6 @@ router.get('/searchCardsKeyword', (req, res) => {
         res.locals.searchedCardData = processCardData(results);
         res.json(res.locals.searchedCardData);
     });
-});
-
-router.get('/api/cardData', (req, res) => {
-    const cardData = res.locals.cardData;
-    res.json(cardData);
 });
 
 
@@ -430,29 +428,29 @@ router.post('/searchWithFilters', async (req, res) => {
 
     let searchFilterQuery = `SELECT * FROM card`;
     let conditions = [];
-    
+
     if (keyword) {
         conditions.push(`(card.name LIKE '${keyword}' OR card.illustrator LIKE '${keyword}' OR card.ability_name LIKE '${keyword}' OR card.evolveFrom LIKE '${keyword}')`);
     }
-    
+
     const filterQueryArray = buildFilterQuery(selectedFilters);
     const seriesQueryArray = buildSeriesQuery(selectedFilters);
-    
+
     if (seriesQueryArray.length > 0) {
         conditions.push(`card_set.series_PK_id IN (${seriesQueryArray.map(id => `'${id}'`).join(', ')})`);
     }
-    
+
     if (filterQueryArray.length > 0) {
         conditions.push(filterQueryArray.join(' AND '));
     }
-    
+
     if (conditions.length > 0) {
         searchFilterQuery += ` JOIN card_set ON card_set.card_set_id = card.card_set_id WHERE `;
         searchFilterQuery += conditions.join(' AND ');
     }
-    
+
     console.log('searchFilterQuery:', searchFilterQuery);
-    
+
 
     console.log('searchFilterQuery:', searchFilterQuery);
 

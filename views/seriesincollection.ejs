@@ -36,14 +36,14 @@
                     <div>
                         <div class="uk-card uk-card-default uk-card-hover" >
                             <div class="uk-margin-small-left uk-padding-small">
-                                <a class="uk-link-reset" href="/series_sets_list/<%= series.id %>">
+                                <a class="uk-link-reset" href="">
                                     <%= series.name %>
                                 </a>
                             </div>
                             <div class="uk-card-media-bottom uk-padding-small ">
 
                                 <% if (series.logo){ %>
-                                    <a href="/series_sets_list/<%= series.id %>"><img src="<%= series.logo %>.png"
+                                    <a href=""><img src="<%= series.logo %>.png"
                                             alt=""></a>
                                     <% } else { %>
                                         <div class="uk-text-center">
@@ -53,9 +53,7 @@
 
                                         <% } %>
                             </div>
-                            <div class="uk-margin-small-left uk-margin-small-right">
-                              <progress id="js-progressbar" class="uk-progress" value="10" max="100"></progress>  
-                            </div>
+                            
                             
                         </div>
                     </div>

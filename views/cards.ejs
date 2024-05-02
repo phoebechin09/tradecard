@@ -257,6 +257,18 @@
                 return selectedFilters;
             };
 
+            function clearAllFilters(){
+                const selectedFilters = {};
+                const filterCheckboxes = document.querySelectorAll('.uk-checkbox');
+                const selectedChecks = {};
+
+                filterCheckboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        checkbox.checked = false;
+                    }
+                });
+            };
+
 
             function searchWithFilters() {
                 console.log('starting searchWithFilters function...');
@@ -343,9 +355,7 @@
                 </ul>
             </div>
 
-            <button id="loadMoreBtn"
-                class="uk-button uk-button-large uk-button-secondary uk-margin-bottom uk-width-1-2 uk-margin-medium-top uk-align-center">Load
-                More</button>
+           
             <%- include('footer') %>
         </div>
         <!-- card results list -->

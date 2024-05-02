@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= userName %>'s Card Collection
+    </title>
+    <link href="https://css.gg/css" rel="stylesheet" />
+    <script src="/js/uikit.min.js"></script>
+    <link rel="stylesheet" href="/css/uikit.min.css">
+    <script src="/js/uikit-icons.js"></script>
+</head>
+
+<body>
+    <%- include('navbar') %>
+
+
+        <div class="uk-flex-top uk-padding-small uk-margin-small-right" uk-grid uk-height-viewport="expand: true">
+            <div class="uk-margin uk-margin-large-left uk-width-1-1">
+                <div class="uk-flex uk-flex-middle">
+                    <div>
+                        <span class="uk-margin-small-right" uk-icon="icon: album; ratio: 1.4"></span>
+                    </div>
+                    <div class="">
+                        <h3 class="uk-margin-remove-bottom uk-text-large">@<%= userName %>'s Card Collection</h3>
+                        <h6 class="uk-margin-remove">Showing <%= otherUserCards.length %> card(s) from <%= userName %>'s
+                                    collection:
+                        </h6>
+                    </div>
+                </div>
+                <div class="uk-width-1-4@s uk-margin-medium-top">
+                    <div class="uk-width-1-1"><span uk-icon="heart" class="uk-margin-small-right"></span>
+                        <%= heartsCount %> heart(s)
+                    </div>
+                    <button id="heartAlbumBtn"
+                        class="uk-button uk-button-default uk-text-capitalize uk-width-1-1@s uk-margin"
+                        type="button">Heart Collection</button>
+                </div>
+            </div>
+
+            <div class="uk-grid-small uk-margin-large-left uk-margin-medium-right uk-margin-medium-bottom uk-child-width-1-3@s uk-child-width-1-4@m uk-flex uk-width1-1"
+                uk-grid uk-height-match="target: .uk-card">
+                <% otherUserCards.forEach(card=> { %>
+                    <div>
+                        <div class="uk-card uk-card-default uk-card-hover ">
+                            <div class="uk-card-media-bottom uk-padding-small ">
+                                <% if (card.image){ %>
+                                    <img src="<%= card.image %>/low.webp" alt="">
+                                    <% } else { %>
+                                        <div class="uk-text-center">
+                                            <div class="uk-link-reset uk-text-small uk-text-muted " href="#">no image
+                                                🖼️</div>
+                                        </div>
+                                        <% } %>
+                            </div>
+                            <div class="uk-text-center" uk-text-center><a class="uk-text-small uk-text-muted "
+                                    href="/cardinfo/<%= card.id %>">
+                                    <%= card.name %>
+                                </a></div>
+                            <div class="uk-flex uk-flex-center uk-padding-small">
+                            </div>
+                        </div>
+                    </div>
+                    <% }); %>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const heartAlbumBtn = document.getElementById('heartAlbumBtn');
+                const userAlbumId =  <%= JSON.stringify(otherUserCollection[0].userAlbumId) %>;
+
+                function updateButtonDisplay() {
+                    console.log("updating heart album status");
+                    fetch(`/heartCollectionStatus/${userAlbumId}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.exists) {
+                                console.log('exists');
+                                if (!heartAlbumBtn.classList.contains('uk-button-primary')) {
+                                    heartAlbumBtn.classList.remove('uk-button-default');
+                                    heartAlbumBtn.classList.add('uk-button-primary');
+                                    heartAlbumBtn.innerHTML = `Collection Hearted <span class="uk-margin-small-left" uk-icon="heart"></span>`;
+                                }
+                            } else {
+                                if (!heartAlbumBtn.classList.contains('uk-button-default')) {
+                                    heartAlbumBtn.classList.remove('uk-button-primary');
+                                    heartAlbumBtn.classList.add('uk-button-default');
+                                    heartAlbumBtn.textContent = "Heart Collection";
+                                }
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error checking heart album status:', error);
+                        });
+                }
+
+                function heartAlbum() {
+                    fetch('/heartAlbum', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ userAlbumId: userAlbumId })
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            console.log('Album Hearted');
+                            console.log('update button after adding');
+                            updateButtonDisplay(); 
+                        })
+                        .catch(error => {
+                            console.error('Error hearting collection:', error);
+                        });
+                }
+
+
+                function unheartAlbum() {
+                    fetch('/unheartAlbum', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ userAlbumId: userAlbumId })
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            console.log('Unhearted album');
+                            console.log('update button after removing');
+                            updateButtonDisplay();
+                        })
+                        .catch(error => {
+                            console.error('Error removing item from wishlist:', error);
+                        });
+                }
+
+                updateButtonDisplay();
+                heartAlbumBtn.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    
+                    if (heartAlbumBtn.classList.contains('uk-button-primary')) {
+                        unheartAlbum();
+                        window.location.reload();
+                    } else if (heartAlbumBtn.classList.contains('uk-button-default')) {
+                        heartAlbum();
+                        window.location.reload();
+                    }
+                });
+            });
+
+        </script>
+
+
+
+        <%- include('footer') %>
+</body>
+
+</html>
