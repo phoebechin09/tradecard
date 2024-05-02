@@ -4,13 +4,23 @@ const { sessionConfig, isAuthenticated } = require('./config');
 const session = require('express-session');
 const connection = require('./database');
 const bcrypt = require('bcrypt');
+const { body, validationResult } = require('express-validator');
 
 router.use(session(sessionConfig));
 
 const util = require('util');
 const queryAsync = util.promisify(connection.query).bind(connection);
 
-router.post("/registerAccount", async (req, res) => {
+
+router.post("/registerAccount", [
+    body('user').trim().isLength({ min: 1 }).escape(),
+    body('password').trim().isLength({ min: 1 }).escape(),
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     const user = req.body.user;
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
@@ -49,6 +59,7 @@ router.post("/registerAccount", async (req, res) => {
         }
     });
 });
+
 
 // handle login
 router.post('/loginToAccount', async (req, res) => {
@@ -730,22 +741,7 @@ router.post('/removeFromWishlist', isAuthenticated, async (req, res) => {
 });
 
 // add to collection **************************************************************************************************************************
-// router.get('/collectionStatus/:cardId', isAuthenticated, (req, res) => {
-//     const userId = req.session.userId;
-//     const cardId = req.params.cardId;
 
-
-//     const query = 'SELECT COUNT(*) AS collectionCount FROM user_collection WHERE user_id = ? AND card_PK_id = ?';
-
-//     connection.query(query, [userId, cardId], (err, result) => {
-//         if (err) {
-//             console.error('Error checking collection status:', err);
-//             res.status(500).json({ error: 'Internal Server Error' });
-//         } else if (result[0].collectionCount > 0) {
-//             res.json({ exists: true });
-//         }
-//     });
-// });
 
 router.post('/addHoloToCollection', isAuthenticated, async (req, res) => {
     console.log('router handling add holo to collection...');
