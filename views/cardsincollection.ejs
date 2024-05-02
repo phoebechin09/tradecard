@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= user %>'s Card Collection
+    </title>
+    <link href="https://css.gg/css" rel="stylesheet" />
+    <script src="/js/uikit.min.js"></script>
+    <link rel="stylesheet" href="/css/uikit.min.css">
+    <script src="/js/uikit-icons.js"></script>
+</head>
+
+<body>
+    <%- include('navbar') %>
+
+
+        <div class="uk-flex-top uk-padding-small uk-margin-small-right" uk-grid uk-height-viewport="expand: true">
+            <div class="uk-margin uk-margin-large-left uk-width-1-1">
+                <div class="uk-flex uk-flex-middle">
+                    <div>
+                        <span class="uk-margin-small-right" uk-icon="icon: thumbnails; ratio: 1.4"></span>
+                    </div>
+                    <div class="">
+                        <h3 class="uk-margin-remove-bottom uk-text-large">Cards in My Collection</h3>
+                        <h6 class="uk-margin-remove">Showing <%= userUniqueCards.length %> card(s) from collection:
+                        </h6>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="uk-grid-small uk-margin-large-left uk-margin-large-right uk-margin-medium-bottom uk-child-width-1-3@s uk-child-width-1-4@m uk-flex uk-width1-1"
+                uk-grid uk-height-match="target: .uk-card">
+                <% mappedUniqueCards.forEach(card=> { %>
+                    <div>
+                        <div class="uk-card uk-card-default uk-card-hover ">
+
+                            <div class="uk-card-media-bottom uk-padding-small ">
+
+                                <% if (card.image){ %>
+                                    <img src="<%= card.image %>/low.webp" alt="">
+                                    <% } else { %>
+                                        <div class="uk-text-center">
+                                            <div class="uk-link-reset uk-text-small uk-text-muted " href="#">no image
+                                                🖼️</div>
+                                        </div>
+                                        <% } %>
+                            </div>
+
+                            <div class="uk-text-center" uk-text-center><a class="uk-text-small uk-text-muted "
+                                    href="/cardinfo/<%= card.id %>">
+                                    <%= card.name %> 
+                                </a></div>
+                            <div class="uk-flex uk-flex-center uk-padding-small">
+
+                                <div>
+                                    <button id="minusButton" uk-icon="minus" class="uk-margin-small-right"></button>
+                                    <div id="minusDropdownContainer"
+                                        uk-dropdown='{"mode": "click", "pos": "bottom-right"}'>
+                                        <ul class="uk-nav uk-dropdown-nav ">
+                                            <li><a href="#" data-value="Normal" id="minusNormalBtn">
+                                                    <span uk-icon="minus"
+                                                        class="uk-margin-small-right"></span>Normal</a>
+                                            </li>
+                                            <li>
+                                                <a href="#" data-value="Reverse Holo" id="minusHoloBtn">
+                                                    <span uk-icon="minus" class="uk-margin-small-right"></span>Reverse
+                                                    Holo</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <span>
+                                    <%= totalCount %>
+                                </span>
+                                <button id="plusButton" uk-icon="plus" class="uk-margin-small-left"></button>
+                                <div id="dropdownContainer" uk-dropdown='{"mode": "click", "pos": "bottom-left"}'>
+                                    <ul class="uk-nav uk-dropdown-nav ">
+                                        <li><a href="#" data-value="Normal" id="normalBtn">
+                                                <span uk-icon="plus" class="uk-margin-small-right"></span>Normal
+                                            </a></li>
+                                        <li>
+                                            <a href="#" data-value="Reverse Holo" id="holoBtn">
+                                                <span uk-icon="plus" class="uk-margin-small-right"></span>Reverse
+                                                Holo
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <% }); %>
+            </div>
+        </div>
+
+
+
+
+
+        <%- include('footer') %>
+</body>
+
+</html>

@@ -17,408 +17,419 @@
         <div id="alert-container"></div>
         <div class="uk-flex-top uk-padding-small uk-margin-small-right" uk-grid uk-height-viewport="expand: true">
             <div class="uk-flex-first uk-width-1-3@s uk-container">
-                <div class="uk-text-bolder uk-text-center uk-text-bottom uk-text-emphasis">
+                <div class="uk-text-bolder uk-text-center uk-text-bottom uk-text-large uk-text-emphasis">
                     <%= selectedCardInfo.name %>
                 </div>
-                <% if (selectedCardInfo.evolveFrom) { %>
-                    <dd class="uk-text-small uk-margin-bottom uk-text-center">
-                        <%= selectedCardInfo.stage %> - Evolves from <%= selectedCardInfo.evolveFrom %>
+                <% if (selectedCardInfo.category) { %>
+                    <dd class="uk-text-small uk-text-center">
+                        Type: <%= selectedCardInfo.category %>
                     </dd>
-                    <% } else if (selectedCardInfo.stage) { %>
-                        <dd class="uk-text-small uk-margin-bottom uk-text-center">
-                            <%= selectedCardInfo.stage %>
-                        </dd>
-                        <% } %>
-                            <% if (selectedCardInfo.image) { %>
-                                <img class="uk-border-rounded " src="<%= selectedCardInfo.image %>/high.webp" alt="">
-                                <% } else { %>
-                                    <div class="uk-card uk-card-default uk-card-hover uk-border-rounded uk-text-center">
-                                        <a class="uk-link-reset uk-text-small uk-text-muted uk-margin-medium-top"
-                                            href="/cardinfo/<%= cardData[i].id %>"
-                                            data-card-name="<%= cardData[i].name %>">no image 🖼️</a>
-                                    </div>
-                                    <% } %>
-
-                                        <% if (isAuthenticated) { %>
-                                            <div class="uk-flex uk-flex-center uk-flex-column uk-padding-small">
-                                                <div class="uk-flex uk-flex-between uk-margin-bottom">
-                                                    <div class="uk-flex uk-flex-center">
-                                                        <a href="#modal-center" uk-icon="album"
-                                                            uk-toggle="target: #modal-center" id="albumIcon"></a>
-                                                        <div id="modal-center" class="uk-flex-top" uk-modal>
-                                                            <div
-                                                                class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
-                                                                <h4>Collection per variant</h4>
-                                                                <div class="uk-column-1-2 uk-container">
-                                                                    <dd>Normal </dd>
-                                                                    <dd>Reverse Holo</dd>
-                                                                    <dd class="uk-text-right">
-                                                                        <%= normalVarCount %>
-                                                                    </dd>
-                                                                    <dd class="uk-text-right">
-                                                                        <%= holoVarCount %>
-                                                                            </ddp>
-                                                                </div>
-                                                                <hr>
-                                                                <div class="uk-column-1-2 uk-container">
-                                                                    <dd>Total</dd>
-                                                                    <dd class="uk-text-right">
-                                                                        <%= totalCount %>
-                                                                    </dd>
-                                                                </div>
-                                                                <button class="uk-modal-close-default" type="button"
-                                                                    uk-close></button>
-                                                            </div>
-                                                        </div>
-                                                        <div class="uk-text-small uk-margin-small-left">Add to
-                                                            collection</div>
-                                                    </div>
-                                                    <div>
-                                                        <button id="minusButton" uk-icon="minus"
-                                                            class="uk-margin-small-right"></button>
-                                                        <div id="minusDropdownContainer"
-                                                            uk-dropdown='{"mode": "click", "pos": "bottom-right"}'>
-                                                            <ul class="uk-nav uk-dropdown-nav "
-                                                                uk-dropbar="align: center">
-                                                                <li><a href="#" data-value="Normal" id="minusNormalBtn">
-                                                                        <span uk-icon="minus"
-                                                                            class="uk-margin-small-right"></span>Normal</a>
-                                                                </li>
-                                                                <li>
-                                                                    <a href="#" data-value="Reverse Holo"
-                                                                        id="minusHoloBtn">
-                                                                        <span uk-icon="minus"
-                                                                            class="uk-margin-small-right"></span>Reverse
-                                                                        Holo</a>
-                                                                </li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                    <span>
-                                                        <%= totalCount %>
-                                                    </span>
-                                                    <button id="plusButton" uk-icon="plus"
-                                                        class="uk-margin-small-left"></button>
-                                                    <div id="dropdownContainer"
-                                                        uk-dropdown='{"mode": "click", "pos": "bottom-left"}'>
-                                                        <ul class="uk-nav uk-dropdown-nav " uk-dropbar="align: center">
-                                                            <li><a href="#" data-value="Normal" id="normalBtn">
-                                                                    <span uk-icon="plus"
-                                                                        class="uk-margin-small-right"></span>Normal
-                                                                </a></li>
-                                                            <li>
-                                                                <a href="#" data-value="Reverse Holo" id="holoBtn">
-                                                                    <span uk-icon="plus"
-                                                                        class="uk-margin-small-right"></span>Reverse
-                                                                    Holo
-                                                                </a>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-
-                                                </div>
-
-                                                <button id="addToWishListBtn"
-                                                    class="uk-button uk-button-default uk-text-capitalize uk-width-1-1 "
-                                                    type="button">Add
-                                                    To Wishlist</button>
+                    <% } %>
+                        <% if (selectedCardInfo.evolveFrom) { %>
+                            <dd class="uk-text-small uk-margin-small-bottom uk-text-center">
+                                <%= selectedCardInfo.stage %> - Evolves from <%= selectedCardInfo.evolveFrom %>
+                            </dd>
+                            <% } else if (selectedCardInfo.stage) { %>
+                                <dd class="uk-text-small uk-margin-small-bottom uk-text-center">
+                                    <%= selectedCardInfo.stage %>
+                                </dd>
+                                <% } %>
+                                    <% if (selectedCardInfo.image) { %>
+                                        <img class="uk-border-rounded " src="<%= selectedCardInfo.image %>/high.webp"
+                                            alt="">
+                                        <% } else { %>
+                                            <div
+                                                class="uk-card uk-card-default uk-card-hover uk-border-rounded uk-text-center">
+                                                <a class="uk-link-reset uk-text-small uk-text-muted uk-margin-medium-top"
+                                                    href="/cardinfo/<%= cardData[i].id %>"
+                                                    data-card-name="<%= cardData[i].name %>">no image 🖼️</a>
                                             </div>
-                                            <!-- to handle client side for isAuthenticated -->
-                                            <script>
-                                                document.addEventListener('DOMContentLoaded', function () {
-                                                    const addToWishlistBtn = document.getElementById('addToWishListBtn');
-                                                    const cardId = <%= JSON.stringify(selectedCardInfo.PKId) %>;
+                                            <% } %>
 
-                                                    function updateButtonDisplay() {
-                                                        console.log("updating wishlist status");
-                                                        fetch(`/wishlistStatus/${cardId}`)
-                                                            .then(response => {
-                                                                if (!response.ok) {
-                                                                    throw new Error('Network response was not ok');
-                                                                }
-                                                                return response.json();
-                                                            })
-                                                            .then(data => {
-                                                                if (data.exists) {
-                                                                    console.log('exists');
-                                                                    if (!addToWishlistBtn.classList.contains('uk-button-primary')) {
-                                                                        addToWishlistBtn.classList.remove('uk-button-default');
-                                                                        addToWishlistBtn.classList.add('uk-button-primary');
-                                                                        addToWishlistBtn.innerHTML = `Added to Wishlist<span class="uk-margin-small-left" uk-icon="check"></span>`;
-                                                                    }
-                                                                } else {
-                                                                    if (!addToWishlistBtn.classList.contains('uk-button-default')) {
-                                                                        addToWishlistBtn.classList.remove('uk-button-primary');
-                                                                        addToWishlistBtn.classList.add('uk-button-default');
-                                                                        addToWishlistBtn.textContent = "Add to Wishlist";
-                                                                    }
-                                                                }
-                                                            })
-                                                            .catch(error => {
-                                                                console.error('Error checking wishlist status:', error);
-                                                            });
-                                                    }
-
-                                                    function addToWishlist() {
-                                                        fetch('/addToWishlist', {
-                                                            method: 'POST',
-                                                            headers: {
-                                                                'Content-Type': 'application/json'
-                                                            },
-                                                            body: JSON.stringify({ cardPKId: cardId })
-                                                        })
-                                                            .then(response => {
-                                                                if (!response.ok) {
-                                                                    throw new Error('Network response was not ok');
-                                                                }
-                                                                console.log('Added to wishlist');
-                                                                console.log('update button after adding');
-                                                                updateButtonDisplay();
-                                                                createSucessAlert("Added card to wishlist");
-                                                            })
-                                                            .catch(error => {
-                                                                console.error('Error adding item to wishlist:', error);
-                                                            });
-                                                    }
-
-                                                    function removeFromWishlist() {
-                                                        fetch('/removeFromWishlist', {
-                                                            method: 'POST',
-                                                            headers: {
-                                                                'Content-Type': 'application/json'
-                                                            },
-                                                            body: JSON.stringify({ cardPKId: cardId })
-                                                        })
-                                                            .then(response => {
-                                                                if (!response.ok) {
-                                                                    throw new Error('Network response was not ok');
-                                                                }
-                                                                console.log('Removed from wishlist');
-                                                                console.log('update button after removing');
-                                                                updateButtonDisplay();
-                                                                createAlert("Removed card from wishlist");
-                                                            })
-                                                            .catch(error => {
-                                                                console.error('Error removing item from wishlist:', error);
-                                                            });
-                                                    }
-
-                                                    updateButtonDisplay();
-                                                    addToWishlistBtn.addEventListener('click', function (event) {
-                                                        event.preventDefault();
-                                                        event.stopPropagation();
-                                                        if (addToWishlistBtn.classList.contains('uk-button-primary')) {
-                                                            removeFromWishlist();
-                                                            window.location.reload();
-                                                        } else if (addToWishlistBtn.classList.contains('uk-button-default')) {
-                                                            addToWishlist();
-                                                            window.location.reload();
-                                                        }
-                                                    });
-
-
-
-
-                                                    document.addEventListener('DOMContentLoaded', function () {
-                                                        const albumIcon = document.getElementById('albumIcon');
-                                                        albumIcon.addEventListener('click', function (event) {
-                                                            event.preventDefault();
-                                                            event.stopPropagation();
-                                                        });
-                                                    });
-
-                                                });
-
-
-                                                document.addEventListener('DOMContentLoaded', function () {
-                                                    const normalBtn = document.getElementById('normalBtn');
-                                                    const holoBtn = document.getElementById('holoBtn');
-                                                    const dropdownContainer = document.getElementById('dropdownContainer');
-                                                    const cardId = <%= JSON.stringify(selectedCardInfo.PKId) %>;
-                                                    const count = <%= totalCount %>;
-                                                    const holoCount = <%= holoVarCount %>;
-                                                    const normalCount = <%= normalVarCount %>;
-
-                                                    minusNormalBtn.addEventListener('click', function (event) {
-                                                        event.preventDefault();
-                                                        event.stopPropagation();
-                                                        if (count > 0 && normalCount > 0) {
-                                                            fetch('/rmNormalFromCollection', {
-                                                                method: 'POST',
-                                                                headers: {
-                                                                    'Content-Type': 'application/json'
-                                                                },
-                                                                body: JSON.stringify({ cardPKId: cardId })
-                                                            })
-                                                                .then(response => {
-                                                                    if (!response.ok) {
-                                                                        throw new Error('Network response was not ok');
-                                                                    }
-                                                                    const alertMessage = "Removed card from collection.";
-                                                                    window.location.href = window.location.pathname + '?alert=true&message=' + encodeURIComponent(alertMessage);
-                                                                })
-                                                                .catch(error => {
-                                                                    console.error('Error adding normal to collection:', error);
-                                                                    alert('Error adding normal to collection');
-                                                                });
-                                                        } else {
-                                                            createAlert("You don't have cards of this variant in your collection to remove");
-                                                        }
-                                                    });
-
-                                                    minusHoloBtn.addEventListener('click', function (event) {
-                                                        event.preventDefault();
-                                                        event.stopPropagation();
-                                                        if (count > 0 && holoCount > 0) {
-                                                            fetch('/rmHoloFromCollection', {
-                                                                method: 'POST',
-                                                                headers: {
-                                                                    'Content-Type': 'application/json'
-                                                                },
-                                                                body: JSON.stringify({ cardPKId: cardId })
-                                                            })
-                                                                .then(response => {
-                                                                    if (!response.ok) {
-                                                                        throw new Error('Network response was not ok');
-                                                                    }
-                                                                    const alertMessage = "Removed card from collection.";
-                                                                    window.location.href = window.location.pathname + '?alert=true&message=' + encodeURIComponent(alertMessage);
-
-                                                                })
-                                                                .catch(error => {
-                                                                    console.error('Error removing holo from collection:', error);
-                                                                    alert('Error removing holo to collection');
-                                                                });
-                                                        } else {
-                                                            createAlert("You don't have cards of this variant in your collection to remove");
-                                                        }
-                                                    });
-
-
-
-                                                    normalBtn.addEventListener('click', function (event) {
-                                                        event.preventDefault();
-                                                        event.stopPropagation();
-                                                        fetch('/addNormalToCollection', {
-                                                            method: 'POST',
-                                                            headers: {
-                                                                'Content-Type': 'application/json'
-                                                            },
-                                                            body: JSON.stringify({ cardPKId: cardId })
-                                                        })
-                                                            .then(response => {
-                                                                if (!response.ok) {
-                                                                    throw new Error('Network response was not ok');
-                                                                }
-                                                                UIkit.dropdown('#dropdownContainer').hide();
-                                                                const successMessage = "Added card to collection!";
-                                                                window.location.href = window.location.pathname + '?success=true&message=' + encodeURIComponent(successMessage);
-
-                                                            })
-                                                            .catch(error => {
-                                                                console.error('Error adding item to collection:', error);
-                                                                alert('Error adding item to collection');
-                                                            });
-                                                    });
-
-
-
-                                                    holoBtn.addEventListener('click', function (event) {
-                                                        event.preventDefault();
-                                                        event.stopPropagation();
-                                                        fetch('/addHoloToCollection', {
-                                                            method: 'POST',
-                                                            headers: {
-                                                                'Content-Type': 'application/json'
-                                                            },
-                                                            body: JSON.stringify({ cardPKId: cardId })
-                                                        })
-                                                            .then(response => {
-                                                                if (!response.ok) {
-                                                                    throw new Error('Network response was not ok');
-                                                                }
-                                                                UIkit.dropdown('#dropdownContainer').hide();
-                                                                const successMessage = "Added card to collection!";
-                                                                window.location.href = window.location.pathname + '?success=true&message=' + encodeURIComponent(successMessage);
-                                                            })
-                                                            .catch(error => {
-                                                                console.error('Error adding item to collection:', error);
-                                                                alert('Error adding item to collection');
-                                                            });
-                                                    });
-                                                });
-
-                                                document.addEventListener('DOMContentLoaded', function () {
-                                                    const urlParams = new URLSearchParams(window.location.search);
-                                                    if (urlParams.has('success') && urlParams.get('success') === 'true') {
-                                                        const successMessage = urlParams.get('message');
-                                                        createSuccessAlert(successMessage);
-                                                        history.replaceState({}, document.title, window.location.pathname);
-                                                    } else if (urlParams.has('alert') && urlParams.get('alert') === 'true') {
-                                                        const successMessage = urlParams.get('message');
-                                                        createAlert(successMessage);
-                                                        history.replaceState({}, document.title, window.location.pathname);
-                                                    };
-                                                });
-
-
-                                            </script>
-
-
-                                            <% } else if (!isAuthenticated) { %>
-                                                <div class="uk-flex uk-flex-center uk-flex-column uk-padding-small">
-
-                                                    <div class="uk-flex uk-flex-between uk-margin-bottom">
-                                                        <div class="uk-flex">
-                                                            <a id="notAuthAlbum" href="#" uk-icon="album"></a>
-
-                                                            <div class="uk-text-small uk-margin-small-left">Add to
-                                                                collection</div>
-                                                        </div>
-
-                                                        <div class="uk-flex ">
-                                                            <button id="decrementButton" uk-icon="minus"
-                                                                class="uk-margin-small-right"></button>
-                                                            <span>0</span>
-                                                            <button id="incrementButton" uk-icon="plus"
+                                                <% if (isAuthenticated) { %>
+                                                    <div class="uk-flex uk-flex-center uk-flex-column uk-padding-small">
+                                                        <div class="uk-flex uk-flex-between uk-margin-bottom">
+                                                            <div class="uk-flex uk-flex-center">
+                                                                <a href="#modal-center" uk-icon="album"
+                                                                    uk-toggle="target: #modal-center"
+                                                                    id="albumIcon"></a>
+                                                                <div id="modal-center" class="uk-flex-top" uk-modal>
+                                                                    <div
+                                                                        class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
+                                                                        <h4>Collection per variant</h4>
+                                                                        <div class="uk-column-1-2 uk-container">
+                                                                            <dd>Normal </dd>
+                                                                            <dd>Reverse Holo</dd>
+                                                                            <dd class="uk-text-right">
+                                                                                <%= normalVarCount %>
+                                                                            </dd>
+                                                                            <dd class="uk-text-right">
+                                                                                <%= holoVarCount %>
+                                                                                    </ddp>
+                                                                        </div>
+                                                                        <hr>
+                                                                        <div class="uk-column-1-2 uk-container">
+                                                                            <dd>Total</dd>
+                                                                            <dd class="uk-text-right">
+                                                                                <%= totalCount %>
+                                                                            </dd>
+                                                                        </div>
+                                                                        <button class="uk-modal-close-default"
+                                                                            type="button" uk-close></button>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="uk-text-small uk-margin-small-left">Add to
+                                                                    collection</div>
+                                                            </div>
+                                                            <div>
+                                                                <button id="minusButton" uk-icon="minus"
+                                                                    class="uk-margin-small-right"></button>
+                                                                <div id="minusDropdownContainer"
+                                                                    uk-dropdown='{"mode": "click", "pos": "bottom-right"}'>
+                                                                    <ul class="uk-nav uk-dropdown-nav ">
+                                                                        <li><a href="#" data-value="Normal"
+                                                                                id="minusNormalBtn">
+                                                                                <span uk-icon="minus"
+                                                                                    class="uk-margin-small-right"></span>Normal</a>
+                                                                        </li>
+                                                                        <li>
+                                                                            <a href="#" data-value="Reverse Holo"
+                                                                                id="minusHoloBtn">
+                                                                                <span uk-icon="minus"
+                                                                                    class="uk-margin-small-right"></span>Reverse
+                                                                                Holo</a>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                            <span>
+                                                                <%= totalCount %>
+                                                            </span>
+                                                            <button id="plusButton" uk-icon="plus"
                                                                 class="uk-margin-small-left"></button>
+                                                            <div id="dropdownContainer"
+                                                                uk-dropdown='{"mode": "click", "pos": "bottom-left"}'>
+                                                                <ul class="uk-nav uk-dropdown-nav ">
+                                                                    <li><a href="#" data-value="Normal" id="normalBtn">
+                                                                            <span uk-icon="plus"
+                                                                                class="uk-margin-small-right"></span>Normal
+                                                                        </a></li>
+                                                                    <li>
+                                                                        <a href="#" data-value="Reverse Holo"
+                                                                            id="holoBtn">
+                                                                            <span uk-icon="plus"
+                                                                                class="uk-margin-small-right"></span>Reverse
+                                                                            Holo
+                                                                        </a>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+
                                                         </div>
 
+                                                        <button id="addToWishListBtn"
+                                                            class="uk-button uk-button-default uk-text-capitalize uk-width-1-1 "
+                                                            type="button">Add
+                                                            To Wishlist</button>
                                                     </div>
-                                                    <button id="toggleBtn"
-                                                        class="uk-button uk-button-default uk-text-capitalize"
-                                                        type="button">Add
-                                                        To Wishlist</button>
-                                                </div>
+                                                    <!-- to handle client side for isAuthenticated -->
+                                                    <script>
+                                                        document.addEventListener('DOMContentLoaded', function () {
+                                                            const addToWishlistBtn = document.getElementById('addToWishListBtn');
+                                                            const cardId = <%= JSON.stringify(selectedCardInfo.PKId) %>;
+
+                                                            function updateButtonDisplay() {
+                                                                console.log("updating wishlist status");
+                                                                fetch(`/wishlistStatus/${cardId}`)
+                                                                    .then(response => {
+                                                                        if (!response.ok) {
+                                                                            throw new Error('Network response was not ok');
+                                                                        }
+                                                                        return response.json();
+                                                                    })
+                                                                    .then(data => {
+                                                                        if (data.exists) {
+                                                                            console.log('exists');
+                                                                            if (!addToWishlistBtn.classList.contains('uk-button-primary')) {
+                                                                                addToWishlistBtn.classList.remove('uk-button-default');
+                                                                                addToWishlistBtn.classList.add('uk-button-primary');
+                                                                                addToWishlistBtn.innerHTML = `Added to Wishlist<span class="uk-margin-small-left" uk-icon="check"></span>`;
+                                                                            }
+                                                                        } else {
+                                                                            if (!addToWishlistBtn.classList.contains('uk-button-default')) {
+                                                                                addToWishlistBtn.classList.remove('uk-button-primary');
+                                                                                addToWishlistBtn.classList.add('uk-button-default');
+                                                                                addToWishlistBtn.textContent = "Add to Wishlist";
+                                                                            }
+                                                                        }
+                                                                    })
+                                                                    .catch(error => {
+                                                                        console.error('Error checking wishlist status:', error);
+                                                                    });
+                                                            }
+
+                                                            function addToWishlist() {
+                                                                fetch('/addToWishlist', {
+                                                                    method: 'POST',
+                                                                    headers: {
+                                                                        'Content-Type': 'application/json'
+                                                                    },
+                                                                    body: JSON.stringify({ cardPKId: cardId })
+                                                                })
+                                                                    .then(response => {
+                                                                        if (!response.ok) {
+                                                                            throw new Error('Network response was not ok');
+                                                                        }
+                                                                        console.log('Added to wishlist');
+                                                                        console.log('update button after adding');
+                                                                        updateButtonDisplay();
+                                                                        createSuccessAlert("Added card to wishlist");
+                                                                    })
+                                                                    .catch(error => {
+                                                                        console.error('Error adding item to wishlist:', error);
+                                                                    });
+                                                            }
+
+                                                            function removeFromWishlist() {
+                                                                fetch('/removeFromWishlist', {
+                                                                    method: 'POST',
+                                                                    headers: {
+                                                                        'Content-Type': 'application/json'
+                                                                    },
+                                                                    body: JSON.stringify({ cardPKId: cardId })
+                                                                })
+                                                                    .then(response => {
+                                                                        if (!response.ok) {
+                                                                            throw new Error('Network response was not ok');
+                                                                        }
+                                                                        console.log('Removed from wishlist');
+                                                                        console.log('update button after removing');
+                                                                        updateButtonDisplay();
+                                                                        createAlert("Removed card from wishlist");
+                                                                    })
+                                                                    .catch(error => {
+                                                                        console.error('Error removing item from wishlist:', error);
+                                                                    });
+                                                            }
+
+                                                            updateButtonDisplay();
+                                                            addToWishlistBtn.addEventListener('click', function (event) {
+                                                                event.preventDefault();
+                                                                event.stopPropagation();
+                                                                if (addToWishlistBtn.classList.contains('uk-button-primary')) {
+                                                                    removeFromWishlist();
+                                                                    window.location.reload();
+                                                                } else if (addToWishlistBtn.classList.contains('uk-button-default')) {
+                                                                    addToWishlist();
+                                                                    window.location.reload();
+                                                                }
+                                                            });
 
 
 
-                                                <script>
-                                                    document.addEventListener('DOMContentLoaded', function () {
-                                                        const toggleBtn = document.getElementById('toggleBtn');
-                                                        const decrementButton = document.getElementById('decrementButton');
-                                                        const incrementButton = document.getElementById('incrementButton');
 
-                                                        toggleBtn.addEventListener('click', function () {
+                                                            document.addEventListener('DOMContentLoaded', function () {
+                                                                const albumIcon = document.getElementById('albumIcon');
+                                                                albumIcon.addEventListener('click', function (event) {
+                                                                    event.preventDefault();
+                                                                    event.stopPropagation();
+                                                                });
+                                                            });
 
-                                                            console.log('no access');
-                                                            createNoAccessAlert();
                                                         });
-                                                        decrementButton.addEventListener('click', function () {
-                                                            console.log('no access');
-                                                            createNoAccessAlert();
+
+
+                                                        document.addEventListener('DOMContentLoaded', function () {
+                                                            const normalBtn = document.getElementById('normalBtn');
+                                                            const holoBtn = document.getElementById('holoBtn');
+                                                            const dropdownContainer = document.getElementById('dropdownContainer');
+                                                            const cardId = <%= JSON.stringify(selectedCardInfo.PKId) %>;
+                                                            const count = <%= totalCount %>;
+                                                            const holoCount = <%= holoVarCount %>;
+                                                            const normalCount = <%= normalVarCount %>;
+
+                                                            minusNormalBtn.addEventListener('click', function (event) {
+                                                                event.preventDefault();
+                                                                event.stopPropagation();
+                                                                if (count > 0 && normalCount > 0) {
+                                                                    fetch('/rmNormalFromCollection', {
+                                                                        method: 'POST',
+                                                                        headers: {
+                                                                            'Content-Type': 'application/json'
+                                                                        },
+                                                                        body: JSON.stringify({ cardPKId: cardId })
+                                                                    })
+                                                                        .then(response => {
+                                                                            if (!response.ok) {
+                                                                                throw new Error('Network response was not ok');
+                                                                            }
+                                                                            const alertMessage = "Removed card from collection.";
+                                                                            window.location.href = window.location.pathname + '?alert=true&message=' + encodeURIComponent(alertMessage);
+                                                                        })
+                                                                        .catch(error => {
+                                                                            console.error('Error adding normal to collection:', error);
+                                                                            alert('Error adding normal to collection');
+                                                                        });
+                                                                } else {
+                                                                    createAlert("You don't have cards of this variant in your collection to remove");
+                                                                }
+                                                            });
+
+                                                            minusHoloBtn.addEventListener('click', function (event) {
+                                                                event.preventDefault();
+                                                                event.stopPropagation();
+                                                                if (count > 0 && holoCount > 0) {
+                                                                    fetch('/rmHoloFromCollection', {
+                                                                        method: 'POST',
+                                                                        headers: {
+                                                                            'Content-Type': 'application/json'
+                                                                        },
+                                                                        body: JSON.stringify({ cardPKId: cardId })
+                                                                    })
+                                                                        .then(response => {
+                                                                            if (!response.ok) {
+                                                                                throw new Error('Network response was not ok');
+                                                                            }
+                                                                            const alertMessage = "Removed card from collection.";
+                                                                            window.location.href = window.location.pathname + '?alert=true&message=' + encodeURIComponent(alertMessage);
+
+                                                                        })
+                                                                        .catch(error => {
+                                                                            console.error('Error removing holo from collection:', error);
+                                                                            alert('Error removing holo to collection');
+                                                                        });
+                                                                } else {
+                                                                    createAlert("You don't have cards of this variant in your collection to remove");
+                                                                }
+                                                            });
+
+
+
+                                                            normalBtn.addEventListener('click', function (event) {
+                                                                event.preventDefault();
+                                                                event.stopPropagation();
+                                                                fetch('/addNormalToCollection', {
+                                                                    method: 'POST',
+                                                                    headers: {
+                                                                        'Content-Type': 'application/json'
+                                                                    },
+                                                                    body: JSON.stringify({ cardPKId: cardId })
+                                                                })
+                                                                    .then(response => {
+                                                                        if (!response.ok) {
+                                                                            throw new Error('Network response was not ok');
+                                                                        }
+                                                                        UIkit.dropdown('#dropdownContainer').hide();
+                                                                        const successMessage = "Added card to collection!";
+                                                                        window.location.href = window.location.pathname + '?success=true&message=' + encodeURIComponent(successMessage);
+
+                                                                    })
+                                                                    .catch(error => {
+                                                                        console.error('Error adding item to collection:', error);
+                                                                        alert('Error adding item to collection');
+                                                                    });
+                                                            });
+
+
+
+                                                            holoBtn.addEventListener('click', function (event) {
+                                                                event.preventDefault();
+                                                                event.stopPropagation();
+                                                                fetch('/addHoloToCollection', {
+                                                                    method: 'POST',
+                                                                    headers: {
+                                                                        'Content-Type': 'application/json'
+                                                                    },
+                                                                    body: JSON.stringify({ cardPKId: cardId })
+                                                                })
+                                                                    .then(response => {
+                                                                        if (!response.ok) {
+                                                                            throw new Error('Network response was not ok');
+                                                                        }
+                                                                        UIkit.dropdown('#dropdownContainer').hide();
+                                                                        const successMessage = "Added card to collection!";
+                                                                        window.location.href = window.location.pathname + '?success=true&message=' + encodeURIComponent(successMessage);
+                                                                    })
+                                                                    .catch(error => {
+                                                                        console.error('Error adding item to collection:', error);
+                                                                        alert('Error adding item to collection');
+                                                                    });
+                                                            });
                                                         });
-                                                        incrementButton.addEventListener('click', function () {
-                                                            console.log('no access');
-                                                            createNoAccessAlert();
+
+                                                        document.addEventListener('DOMContentLoaded', function () {
+                                                            const urlParams = new URLSearchParams(window.location.search);
+                                                            if (urlParams.has('success') && urlParams.get('success') === 'true') {
+                                                                const successMessage = urlParams.get('message');
+                                                                createSuccessAlert(successMessage);
+                                                                history.replaceState({}, document.title, window.location.pathname);
+                                                            } else if (urlParams.has('alert') && urlParams.get('alert') === 'true') {
+                                                                const successMessage = urlParams.get('message');
+                                                                createAlert(successMessage);
+                                                                history.replaceState({}, document.title, window.location.pathname);
+                                                            };
                                                         });
-                                                        notAuthAlbum.addEventListener('click', function () {
-                                                            console.log('no access');
-                                                            createNoAccessAlert();
-                                                        });
-                                                    });
-                                                </script>
-                                                <% } %>
+
+
+                                                    </script>
+
+
+                                                    <% } else if (!isAuthenticated) { %>
+                                                        <div
+                                                            class="uk-flex uk-flex-center uk-flex-column uk-padding-small">
+
+                                                            <div class="uk-flex uk-flex-between uk-margin-bottom">
+                                                                <div class="uk-flex">
+                                                                    <a id="notAuthAlbum" href="#" uk-icon="album"></a>
+
+                                                                    <div class="uk-text-small uk-margin-small-left">Add
+                                                                        to
+                                                                        collection</div>
+                                                                </div>
+
+                                                                <div class="uk-flex ">
+                                                                    <button id="decrementButton" uk-icon="minus"
+                                                                        class="uk-margin-small-right"></button>
+                                                                    <span>0</span>
+                                                                    <button id="incrementButton" uk-icon="plus"
+                                                                        class="uk-margin-small-left"></button>
+                                                                </div>
+
+                                                            </div>
+                                                            <button id="toggleBtn"
+                                                                class="uk-button uk-button-default uk-text-capitalize"
+                                                                type="button">Add
+                                                                To Wishlist</button>
+                                                        </div>
+
+
+
+                                                        <script>
+                                                            document.addEventListener('DOMContentLoaded', function () {
+                                                                const toggleBtn = document.getElementById('toggleBtn');
+                                                                const decrementButton = document.getElementById('decrementButton');
+                                                                const incrementButton = document.getElementById('incrementButton');
+
+                                                                toggleBtn.addEventListener('click', function () {
+
+                                                                    console.log('no access');
+                                                                    createNoAccessAlert();
+                                                                });
+                                                                decrementButton.addEventListener('click', function () {
+                                                                    console.log('no access');
+                                                                    createNoAccessAlert();
+                                                                });
+                                                                incrementButton.addEventListener('click', function () {
+                                                                    console.log('no access');
+                                                                    createNoAccessAlert();
+                                                                });
+                                                                notAuthAlbum.addEventListener('click', function () {
+                                                                    console.log('no access');
+                                                                    createNoAccessAlert();
+                                                                });
+                                                            });
+                                                        </script>
+                                                        <% } %>
             </div>
 
             <div class="uk-width-expand@s uk-container uk-margin" uk-grid>

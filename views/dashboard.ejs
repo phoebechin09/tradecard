@@ -22,44 +22,62 @@
 
                 <div class="uk-child-width-expand@s uk-text-center" uk-grid>
                     <div>
-                        <div class="uk-card uk-card-default uk-card-body">Total Cards: <p><%= totalCount %></p>
+                        <div class="uk-card uk-card-default uk-card-body">Total Cards: <p>
+                                <%= totalCount %>
+                            </p>
                         </div>
                     </div>
                     <div>
-                        <div class="uk-card uk-card-default uk-card-body">Unique Cards: <p><%= uniqueCount %></p>
+                        <div class="uk-card uk-card-default uk-card-body">Unique Cards: <p>
+                                <%= uniqueCount %>
+                            </p>
                         </div>
                     </div>
                     <div>
-                        <div class="uk-card uk-card-default uk-card-body">Total Series: <p><%= seriesCount %></p>
+                        <div class="uk-card uk-card-default uk-card-body">Total Series: <p>
+                                <%= seriesCount %>
+                            </p>
                         </div>
-                    </div>
-                </div>
-
-            </div> 
-                <div class="uk-flex uk-align-center" uk-grid>
-                    <div class="uk-width-1-3@s uk-card uk-card-default uk-card-body">
-                        <div><span class="" uk-icon="link-external"></span> Quick Access</div>
-                            <button class="uk-button uk-button-default uk-width-1-1 uk-margin-remove-bottom"><a
-                                class="uk-link-muted uk-text-capitalize" href="/cardsincollection">Cards in collection</a></button>
-                        <button class="uk-button uk-button-default uk-width-1-1 uk-margin-remove-bottom"><a
-                                class="uk-link-muted uk-text-capitalize" href="/seriesincollection">Series in collection</a></button>
-                                    <button class="uk-button uk-button-default uk-width-1-1 uk-margin-remove-bottom"><a
-                                        class="uk-link-muted uk-text-capitalize" href="/wishlist">Cards in wishlist</a></button>
-                                                
-                    </div>
-                    <div class="uk-width-expand">
-                        <div class="uk-width-1-4@s ">
-                            <div class="uk-card uk-card-default uk-card-body">Cards Per Rarity: 
-                                <p>Common</p>
-                                <p>Rare</p>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
 
             </div>
-           
+            
+                <div class="uk-flex uk-flex-center" uk-grid uk-height-match>
+                    <div class="uk-width-1-2@s uk-card uk-card-default uk-card-body" id="targetCard">
+                        <div><span class="" uk-icon="link-external"></span> Quick Access</div>
+                        <button class="uk-button uk-button-default uk-width-1-1 uk-margin-remove-bottom"><a
+                                class="uk-link-muted uk-text-capitalize" href="/cardsincollection"><span class="uk-margin-small-right" uk-icon="thumbnails"></span>Cards in
+                                collection</a></button>
+                        <button class="uk-button uk-button-default uk-width-1-1 uk-margin-remove-bottom"><a
+                                class="uk-link-muted uk-text-capitalize" href="/seriesincollection"><span class="uk-margin-small-right" uk-icon="list"></span>Series in
+                                collection</a></button>
+                        <button class="uk-button uk-button-default uk-width-1-1 uk-margin-remove-bottom"><a
+                                class="uk-link-muted uk-text-capitalize" href="/wishlist"><span class="uk-margin-small-right" uk-icon="heart"></span>Cards in wishlist</a></button>
+
+                    </div>
+
+                    <div>
+                        <div class="uk-card uk-card-default uk-card-body">Cards Per Rarity:
+                            <dd class="uk-margin-small-top">Common: >0</span></dd>
+                            <dd>Rare: 0</span></dd>
+                        </div>
+                    </div>
+                        
+                    <div>
+                        <div class="uk-card uk-card-default uk-card-body">Cards Per Type:
+                            <p>Pokemon: 0</span></p>  
+                            <p>Trainer: 0</span></p>
+                            <p>Energy: 0</span></p>
+                        </div>
+                    </div>
+                        
+                </div>
+            
+
+
+
+
         </div>
 
 

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= user %>'s Series Collection
+    </title>
+    <link href="https://css.gg/css" rel="stylesheet" />
+    <script src="/js/uikit.min.js"></script>
+    <link rel="stylesheet" href="/css/uikit.min.css">
+    <script src="/js/uikit-icons.js"></script>
+</head>
+
+<body>
+    <%- include('navbar') %>
+
+        <div class="uk-flex-top uk-padding-small uk-margin-small-right" uk-grid uk-height-viewport="expand: true">
+            <div class="uk-margin uk-margin-large-left uk-width-1-1">
+                <div class="uk-flex uk-flex-middle">
+                    <div>
+                        <span class="uk-margin-small-right" uk-icon="icon: list; ratio: 1.4"></span>
+                    </div>
+                    <div class="">
+                        <h3 class="uk-margin-remove-bottom uk-text-large">Series in My Collection</h3>
+                        <h6 class="uk-margin-remove">Showing <%= userSeries.length %> series from collection:
+                        </h6>
+                    </div>
+                </div>
+            </div>
+
+            <div class="uk-grid-small uk-margin-large-left uk-margin-large-right uk-margin-medium-bottom uk-child-width-1-3@s uk-child-width-1-4@m uk-flex"
+                uk-grid uk-height-match="target: .uk-card">
+                <% userSeries.forEach(series=> { %>
+                    <div>
+                        <div class="uk-card uk-card-default uk-card-hover" >
+                            <div class="uk-margin-small-left uk-padding-small">
+                                <a class="uk-link-reset" href="/series_sets_list/<%= series.id %>">
+                                    <%= series.name %>
+                                </a>
+                            </div>
+                            <div class="uk-card-media-bottom uk-padding-small ">
+
+                                <% if (series.logo){ %>
+                                    <a href="/series_sets_list/<%= series.id %>"><img src="<%= series.logo %>.png"
+                                            alt=""></a>
+                                    <% } else { %>
+                                        <div class="uk-text-center">
+                                            <a class="uk-link-reset uk-text-small uk-text-muted "
+                                                href="/series_sets_list/<%= series.id %>">no image 🖼️</a>
+                                        </div>
+
+                                        <% } %>
+                            </div>
+                            <div class="uk-margin-small-left uk-margin-small-right">
+                              <progress id="js-progressbar" class="uk-progress" value="10" max="100"></progress>  
+                            </div>
+                            
+                        </div>
+                    </div>
+                    <% }); %>
+            </div>
+
+        </div>
+
+
+
+
+
+        <%- include('footer') %>
+</body>
+
+</html>

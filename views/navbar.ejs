@@ -17,7 +17,7 @@
         <div class="uk-background-primary uk-position-top" uk-sticky>
             <nav class="uk-navbar-container uk-light uk-navbar-transparent" uk-sticky>
                 <div class="uk-container ">
-                    <div uk-navbar>
+                    <div uk-navbar="mode: click">
 
                         <div class="uk-navbar-left">
 
@@ -28,9 +28,9 @@
                             </div>
 
 
-                            <ul class="uk-navbar-nav">
+                            <ul class="uk-navbar-nav" >
                                 <li>
-                                    <a href="">Series</a>
+                                    <a href="" >Series</a>
                                     <div class="uk-navbar-dropdown"
                                         uk-dropdown="boundary: !.uk-navbar; stretch: x; flip: false">
                                         <ul class="uk-nav uk-dropdown-nav">
@@ -43,11 +43,6 @@
                                             <li>
                                                 <a href="/series_sets_list/<%= seriesData[1].id %>">
                                                     <%= seriesData[1].name %>
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a href="/series_sets_list/<%= seriesData[2].id %>">
-                                                    <%= seriesData[2].name %>
                                                 </a>
                                             </li>
                                             <li class="uk-nav-divider"></li>
@@ -87,8 +82,10 @@
                                                 <li><a href="/login">Login</a></li>
                                                 <li><a href="/signup">Create Account</a></li>
                                                 <% } else if (isAuthenticated) { %>
-                                                    <li><a href="/cardsincollection">Cards in collection</a></li>
-                                                    <li><a href="/seriesincollection">Series in collection</a></li>
+                                                    <li><a href="/cardsincollection"><span class="uk-margin-small-right" uk-icon="thumbnails"></span>Cards in collection</a></li>
+                                                    <li><a href="/seriesincollection"><span class="uk-margin-small-right" uk-icon="list"></span>Series in collection</a></li>
+                                                    <li><a href="/wishlist"><span class="uk-margin-small-right" uk-icon="bookmark"></span>Wishlist</a></li>
+                                                    <li><a href="/otherscollections"><span class="uk-margin-small-right" uk-icon="users"></span> View others collections</a></li>
                                                     <li class="uk-nav-divider"></li>
                                                     <li><a href="" onclick="logout()">Logout</a></li>
                                                     <% } %>

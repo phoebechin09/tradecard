@@ -31,6 +31,7 @@ function processCardData(rows) {
         energyType: cardItem.energy_type,
         rarity: cardItem.rarity,
         stage: cardItem.stage,
+        category: cardItem.category,
         setName: cardItem.card_set_name,
         setPKId: cardItem.card_set_id,
     }));
@@ -339,10 +340,133 @@ router.get('/searchCardsKeyword', (req, res) => {
     });
 });
 
-// Express route to serve card data
 router.get('/api/cardData', (req, res) => {
     const cardData = res.locals.cardData;
     res.json(cardData);
+});
+
+
+
+// Search and filter ********************************************************************************************
+
+router.post('/searchByKeyword', async (req, res) => {
+    const { keyword } = req.body;
+    console.log('keyword obtained in route handler:', keyword);
+    if (!keyword) {
+        return res.status(400).json({ error: 'Search keyword is missing' });
+    }
+    const searchQuery = `
+        SELECT *
+        FROM card
+        WHERE name LIKE ?
+        OR illustrator LIKE ?
+        OR ability_name LIKE ?
+        OR evolveFrom LIKE ?
+        OR energy_type LIKE ?
+    `;
+    const queryParams = Array(5).fill(`%${keyword}%`);
+    connection.query(searchQuery, queryParams, (error, results) => {
+        if (error) {
+            console.error('Error searching cards:', error);
+            return res.status(500).json({ error: 'Internal server error' });
+        } else {
+            res.locals.searchedCardData = processCardData(results);
+            console.log('res.locals.searchedCardData: ', res.locals.searchedCardData);
+            res.json(res.locals.searchedCardData);
+            console.log('Search results fetched');
+        }
+    });
+});
+
+function buildFilterQuery(selectedFilters) {
+    let filterQueryArray = [];
+
+    for (const key in selectedFilters) {
+        const value = selectedFilters[key];
+        if (value === 'category') {
+            filterQueryArray.push(`category = '${key}'`);
+        } else if (value === 'energy_type') {
+            filterQueryArray.push(`energy_type = '${key}'`);
+        } else if (value === 'ability_type') {
+            if (key === 'pokemonPower') {
+                filterQueryArray.push(`ability_type = 'Pokemon Power'`);
+            } else if (key === 'pokePower') {
+                filterQueryArray.push(`ability_type = 'poke-POWER'`);
+            } else if (key === 'pokeBody') {
+                filterQueryArray.push(`ability_type = 'poke-BODY'`);
+            }
+        } else if (value === 'rarity') {
+            if (key === 'rareHolo') {
+                filterQueryArray.push(`rarity = 'Rare Holo'`);
+            } else if (key === 'rareHoloLVX') {
+                filterQueryArray.push(`rarity = 'Rare Holo LV.X'`);
+            } else {
+                filterQueryArray.push(`rarity = '${key}'`);
+            }
+        }
+    }
+
+    // console.log('filterQueryArray from buildFilterQuery(selectedFilters) function', filterQueryArray);
+    return filterQueryArray;
+}
+
+
+function buildSeriesQuery(selectedFilters) {
+    let seriesQueryArray = [];
+
+    for (const key in selectedFilters) {
+        const value = selectedFilters[key];
+        if (value === 'series') {
+            seriesQueryArray.push(key);
+        }
+    }
+
+    // console.log('seriesQueryArray from buildSeriesQuery(selectedFilters) function', seriesQueryArray);
+    return seriesQueryArray;
+}
+
+router.post('/searchWithFilters', async (req, res) => {
+    const { keyword, selectedFilters } = req.body;
+
+    let searchFilterQuery = `SELECT * FROM card`;
+    let conditions = [];
+    
+    if (keyword) {
+        conditions.push(`(card.name LIKE '${keyword}' OR card.illustrator LIKE '${keyword}' OR card.ability_name LIKE '${keyword}' OR card.evolveFrom LIKE '${keyword}')`);
+    }
+    
+    const filterQueryArray = buildFilterQuery(selectedFilters);
+    const seriesQueryArray = buildSeriesQuery(selectedFilters);
+    
+    if (seriesQueryArray.length > 0) {
+        conditions.push(`card_set.series_PK_id IN (${seriesQueryArray.map(id => `'${id}'`).join(', ')})`);
+    }
+    
+    if (filterQueryArray.length > 0) {
+        conditions.push(filterQueryArray.join(' AND '));
+    }
+    
+    if (conditions.length > 0) {
+        searchFilterQuery += ` JOIN card_set ON card_set.card_set_id = card.card_set_id WHERE `;
+        searchFilterQuery += conditions.join(' AND ');
+    }
+    
+    console.log('searchFilterQuery:', searchFilterQuery);
+    
+
+    console.log('searchFilterQuery:', searchFilterQuery);
+
+    connection.query(searchFilterQuery, (error, results) => {
+        if (error) {
+            console.error('Error with search and filter:', error);
+            return res.status(500).json({ error: 'Internal server error' });
+        } else {
+            res.locals.searchedFilteredData = processCardData(results);
+            console.log('res.locals.searchedFilteredData: ', res.locals.searchedFilteredData);
+            res.json(res.locals.searchedFilteredData);
+            console.log('Search results fetched');
+        }
+    });
 });
 
 
@@ -352,12 +476,8 @@ router.get('/api/cardData', (req, res) => {
 
 
 
-
-
-
-
-
 // fetch from API and store into my database****************************************************************************
+
 async function fetchDataAndInsertIntoDB() {
     try {
         const { baseSeriesData, dpSeriesData } = await fetchAndStoreData();

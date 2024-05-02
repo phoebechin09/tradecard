@@ -96,11 +96,10 @@ router.post('/loginToAccount', async (req, res) => {
 });
 
 router.get('/dashboard', isAuthenticated, async (req, res) => {
-        console.log(req.session.userName);
-         console.log('Router handling dashboard...');
-         const userId = req.session.userId;
+    console.log('Router handling dashboard...');
+    const userId = req.session.userId;
     try {
-        
+
         console.log(userId);
         // Query to fetch data from MySQL where user_id matches
         const query = `SELECT * FROM user_collection WHERE user_id = ?`;
@@ -129,7 +128,7 @@ router.get('/dashboard', isAuthenticated, async (req, res) => {
 
 
     try {
-        
+
         const normalVariantQuery = `SELECT COUNT(*) AS normal_count FROM user_collection WHERE variant = 'Normal' AND user_id = ?`;
         const normalVariantRows = await queryAsync(normalVariantQuery, [userId]);
 
@@ -145,7 +144,7 @@ router.get('/dashboard', isAuthenticated, async (req, res) => {
         res.status(500).send('Error fetching normal variant count');
     }
     try {
-        
+
         const holoVariantQuery = `SELECT COUNT(*) AS holo_count FROM user_collection WHERE variant = 'Reverse Holo' AND user_id = ?`;
         const holoVariantRows = await queryAsync(holoVariantQuery, [userId]);
 
@@ -163,39 +162,37 @@ router.get('/dashboard', isAuthenticated, async (req, res) => {
     }
     res.locals.totalCount = res.locals.holoVariantCount + res.locals.normalVariantCount;
 
-try{
-    const uniqueQuery =  `SELECT COUNT(DISTINCT CONCAT(card_PK_id, '_', variant)) AS uniqueCount  FROM user_collection WHERE user_id = ?;`
-    uniqueRows = await queryAsync(uniqueQuery, [userId]);
-    if (uniqueRows.length > 0) {
-        const uniqueCount = uniqueRows[0].uniqueCount;
-        res.locals.uniqueCount = uniqueCount;
-    } else {
-        console.error('No rows returned for holo variant count');
-        res.status(500).send('No rows returned for holo variant count');
+    try {
+        const uniqueQuery = `SELECT COUNT(DISTINCT CONCAT(card_PK_id, '_', variant)) AS uniqueCount  FROM user_collection WHERE user_id = ?;`
+        uniqueRows = await queryAsync(uniqueQuery, [userId]);
+        if (uniqueRows.length > 0) {
+            const uniqueCount = uniqueRows[0].uniqueCount;
+            res.locals.uniqueCount = uniqueCount;
+        } else {
+            console.error('No rows returned for holo variant count');
+            res.status(500).send('No rows returned for holo variant count');
+        }
+
+    } catch (error) {
+        console.error('Error fetching unique count:', error);
+        res.status(500).send('Error fetching unique count');
     }
 
-} catch (error) {
-    console.error('Error fetching unique count:', error);
-    res.status(500).send('Error fetching unique count');
-}
+    try {
+        const seriesCountQuery = `SELECT COUNT(DISTINCT cs.series_PK_id) AS uniqueSeriesCount FROM user_collection uc JOIN card c ON uc.card_PK_id = c.card_PK_id JOIN card_set cs ON c.card_set_id = cs.card_set_id WHERE uc.user_id = ?;`
+        seriesCountRows = await queryAsync(seriesCountQuery, [userId]);
+        if (seriesCountRows.length > 0) {
+            const seriesCount = seriesCountRows[0].uniqueSeriesCount;
+            res.locals.seriesCount = seriesCount;
+        } else {
+            console.error('No rows returned for holo variant count');
+            res.status(500).send('No rows returned for holo variant count');
+        }
 
-try{
-    const seriesCountQuery =  `SELECT COUNT(DISTINCT cs.series_PK_id) AS uniqueSeriesCount FROM user_collection uc JOIN card c ON uc.card_PK_id = c.card_PK_id JOIN card_set cs ON c.card_set_id = cs.card_set_id WHERE uc.user_id = ?;`
-    seriesCountRows = await queryAsync(seriesCountQuery, [userId]);
-    if (seriesCountRows.length > 0) {
-        const seriesCount = seriesCountRows[0].uniqueSeriesCount;
-        res.locals.seriesCount = seriesCount;
-    } else {
-        console.error('No rows returned for holo variant count');
-        res.status(500).send('No rows returned for holo variant count');
+    } catch (error) {
+        console.error('Error fetching unique count:', error);
+        res.status(500).send('Error fetching unique count');
     }
-
-} catch (error) {
-    console.error('Error fetching unique count:', error);
-    res.status(500).send('Error fetching unique count');
-}
-
-    
     res.render('dashboard', {
         user: req.session.userName,
         userCollection: res.locals.userCollection,
@@ -207,6 +204,142 @@ try{
         seriesCount: res.locals.seriesCount
     });
 });
+
+router.get('/cardsincollection', isAuthenticated, async (req, res) => {
+    const userId = req.session.userId;
+    console.log('Router handling cards in collection...');
+    try {
+        const userUniqueCardsQuery = `SELECT DISTINCT card.* FROM card JOIN user_collection ON card.card_PK_id = user_collection.card_PK_id WHERE user_collection.user_id = ?;`
+        userUniqueCardsRows = await queryAsync(userUniqueCardsQuery, [userId]);
+        if (userUniqueCardsRows.length > 0) {
+            const mappedUniqueCards = userUniqueCardsRows.map(cardItem => ({
+                PKId: cardItem.card_PK_id,
+                id: cardItem.card_id,
+                localId: cardItem.local_id,
+                illustrator: cardItem.illustrator,
+                image: cardItem.image,
+                name: cardItem.name,
+                hp: cardItem.hp,
+                abilityType: cardItem.ability_type,
+                abilityName: cardItem.ability_name,
+                abilityEffect: cardItem.ability_effect,
+                evolveFrom: cardItem.evolveFrom,
+                energyType: cardItem.energy_type,
+                rarity: cardItem.rarity,
+                stage: cardItem.stage,
+                setName: cardItem.card_set_name,
+                setPKId: cardItem.card_set_id,
+            }));
+            res.locals.userUniqueCards = mappedUniqueCards;
+            console.log(res.locals.userUniqueCards);
+        } else {
+            console.error('empty collection');
+
+        }
+    } catch (error) {
+        console.error('Error fetching unique count:', error);
+        res.status(500).send('Error fetching unique count');
+    }
+
+    res.render('cardsincollection', {
+        user: req.session.userName,
+        userCollection: res.locals.userCollection,
+        isAuthenticated: req.session.authenticated,
+        normalVarCount: res.locals.normalVariantCount,
+        holoVarCount: res.locals.holoVariantCount,
+        totalCount: res.locals.totalCount,
+        uniqueCount: res.locals.uniqueCount,
+        seriesCount: res.locals.seriesCount,
+        mappedUniqueCards: res.locals.userUniqueCards,
+        userSeries: res.locals.userSeries
+    });
+
+});
+
+router.get('/seriesincollection', isAuthenticated, async (req, res) => {
+    const userId = req.session.userId;
+    try {
+        const userSeriesQuery = `SELECT DISTINCT s.*  FROM series s  JOIN card_set cs ON s.series_PK_id = cs.series_PK_id  JOIN card c ON cs.card_set_id = c.card_set_id  JOIN user_collection uc ON c.card_PK_id = uc.card_PK_id  WHERE uc.user_id = ?;`
+        userSeriesRows = await queryAsync(userSeriesQuery, [userId]);
+        if (userSeriesRows.length > 0) {
+            const mappedUniqueSeries = userSeriesRows.map(seriesItem => ({
+                PKId: seriesItem.series_PK_id,
+                id: seriesItem.series_id,
+                name: seriesItem.name,
+                logo: seriesItem.logo
+            }));
+            res.locals.userSeries = mappedUniqueSeries;
+        } else {
+            console.error('No rows returned for userSeries');
+            res.status(500).send('No rows returned for userSeries');
+        }
+        console.log(res.locals.userSeries);
+
+    } catch (error) {
+        console.error('Error fetching userSeries:', error);
+        res.status(500).send('Error fetching userSeries');
+    }
+    res.render('seriesincollection', {
+        user: req.session.userName,
+        userCollection: res.locals.userCollection,
+        isAuthenticated: req.session.authenticated,
+        normalVarCount: res.locals.normalVariantCount,
+        holoVarCount: res.locals.holoVariantCount,
+        totalCount: res.locals.totalCount,
+        uniqueCount: res.locals.uniqueCount,
+        seriesCount: res.locals.seriesCount,
+        mappedUniqueCards: res.locals.userUniqueCards,
+        userSeries: res.locals.userSeries
+    });
+});
+
+router.get('/seriescardsincollection', isAuthenticated, (req, res) => {
+    const userId = req.session.userId;
+
+});
+
+router.get('/wishlist', isAuthenticated, async (req, res) => {
+    const userId = req.session.userId;
+    try {
+        const userWishlistQuery = `SELECT DISTINCT w.*, c.card_id, c.local_id, c.illustrator, c.image, c.name, c.hp, c.ability_type, c.ability_name, c.ability_effect, c.evolveFrom, c.energy_type, c.rarity, c.stage, c.card_set_name, c.card_set_id FROM wishlist w JOIN card c ON w.card_PK_id = c.card_PK_id WHERE w.user_id = ?`
+        userWishlistRows = await queryAsync(userWishlistQuery, [userId]);
+        if (userWishlistRows.length > 0) {
+            const mappedWishlist = userWishlistRows.map(wishlistItem => ({
+                cardPKId: wishlistItem.card_PK_id,
+                userId: wishlistItem.user_id,
+                id: wishlistItem.card_id,
+                localId: wishlistItem.local_id,
+                illustrator: wishlistItem.illustrator,
+                image: wishlistItem.image,
+                name: wishlistItem.name,
+                hp: wishlistItem.hp,
+                abilityType: wishlistItem.ability_type,
+                abilityName: wishlistItem.ability_name,
+                abilityEffect: wishlistItem.ability_effect,
+                evolveFrom: wishlistItem.evolveFrom,
+                energyType: wishlistItem.energy_type,
+                rarity: wishlistItem.rarity,
+                stage: wishlistItem.stage,
+                setName: wishlistItem.card_set_name,
+                setPKId: wishlistItem.card_set_id,
+            }));
+            res.locals.userWishlist = mappedWishlist;
+            console.log(res.locals.userWishlist);
+        } else {
+            console.error('No rows returned for wishlist');
+            res.status(500).send('No rows returned for wishlist');
+        }
+    } catch (error) {
+        console.error('Error fetching wishlist:', error);
+        res.status(500).send('Error fetching wishlist');
+    }
+    res.render('wishlist', {
+        user: req.session.userName,
+        mappedWishlist: res.locals.userWishlist,
+        isAuthenticated: req.session.authenticated
+    });
+});
+
 
 router.get('/wishlistStatus/:cardId', isAuthenticated, (req, res) => {
     const userId = req.session.userId;
