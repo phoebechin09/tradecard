@@ -42,41 +42,58 @@
                 </div>
 
             </div>
-            
-                <div class="uk-flex uk-flex-center" uk-grid uk-height-match>
-                    <div class="uk-width-1-2@s uk-card uk-card-default uk-card-body" id="targetCard">
-                        <div><span class="" uk-icon="link-external"></span> Quick Access</div>
-                        <button class="uk-button uk-button-default uk-width-1-1 uk-margin-remove-bottom"><a
-                                class="uk-link-muted uk-text-capitalize" href="/cardsincollection"><span class="uk-margin-small-right" uk-icon="thumbnails"></span>Cards in
-                                collection</a></button>
-                        <button class="uk-button uk-button-default uk-width-1-1 uk-margin-remove-bottom"><a
-                                class="uk-link-muted uk-text-capitalize" href="/seriesincollection"><span class="uk-margin-small-right" uk-icon="list"></span>Series in
-                                collection</a></button>
-                        <button class="uk-button uk-button-default uk-width-1-1 uk-margin-remove-bottom"><a
-                                class="uk-link-muted uk-text-capitalize" href="/wishlist"><span class="uk-margin-small-right" uk-icon="heart"></span>Cards in wishlist</a></button>
 
-                    </div>
+            <div class="uk-flex uk-flex-center" uk-grid uk-height-match>
+                <div class="uk-width-1-2@s uk-card uk-card-default uk-card-body" id="targetCard">
+                    <div><span class="" uk-icon="link-external"></span> Quick Access</div>
+                    <button class="uk-button uk-button-default uk-width-1-1 uk-margin-remove-bottom"><a
+                            class="uk-link-muted uk-text-capitalize" href="/cardsincollection"><span
+                                class="uk-margin-small-right" uk-icon="thumbnails"></span>Cards in
+                            collection</a></button>
+                    <button class="uk-button uk-button-default uk-width-1-1 uk-margin-remove-bottom"><a
+                            class="uk-link-muted uk-text-capitalize" href="/seriesincollection"><span
+                                class="uk-margin-small-right" uk-icon="list"></span>Series in
+                            collection</a></button>
+                    <button class="uk-button uk-button-default uk-width-1-1 uk-margin-remove-bottom"><a
+                            class="uk-link-muted uk-text-capitalize" href="/wishlist"><span
+                                class="uk-margin-small-right" uk-icon="heart"></span>Cards in wishlist</a></button>
 
-                    <div>
-                        <div class="uk-card uk-card-default uk-card-body">Cards Per Rarity:
-                            <dd class="uk-margin-small-top">Common: span0</dd>
-                            <dd>Uncommon: 0</dd>
-                            <dd>Rare: 0</dd>
-                            <dd>Rare Holo: 0</dd>
-                            <dd>Rare Holo LV.X: 0</dd>
-                        </div>
-                    </div>
-                        
-                    <div>
-                        <div class="uk-card uk-card-default uk-card-body">Cards Per Type:
-                            <p>Pokemon: 0</p>  
-                            <p>Trainer: 0></p>
-                            <p>Energy: 0</p>
-                        </div>
-                    </div>
-                        
                 </div>
-            
+
+                <div>
+                    <div class="uk-card uk-card-default uk-card-body">Cards Per Rarity:
+                        <div class="uk-text-small uk-text-muted">
+                            <dd class="uk-margin-small-top">Common: <%= commonCount %>
+                            </dd>
+                            <dd>Uncommon: <%= uncommonCount %>
+                            </dd>
+                            <dd>Rare: <%= rareCount %>
+                            </dd>
+                            <dd>Rare Holo: <%= rareHoloCount %>
+                            </dd>
+                            <dd>Rare Holo LV.X: <%= rareHoloLVXCount %>
+                            </dd>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div>
+                    <div class="uk-card uk-card-default uk-card-body">Cards Per Type:
+                        <div class="uk-text-small uk-text-muted  uk-margin-top uk-margin-bottom">
+                            <dd class="uk-margin-small-top">Pokemon: <%= pokemonCount %>
+                            </dd>
+                            <dd>Trainer: <%= trainerCount %>
+                            </dd>
+                            <dd>Energy: <%= energyCount %>
+                            </dd>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
 
 
 

@@ -198,10 +198,137 @@ router.get('/dashboard', isAuthenticated, async (req, res) => {
         console.error('Error fetching unique count:', error);
         res.status(500).send('Error fetching unique count');
     }
-    console.log('NORMAL COUNT: ', res.locals.normalVariantCount);
-    console.log('HOLO COUNT: ', res.locals.holoVariantCount);
-    console.log('TOTAL COUNT: ', res.locals.totalCount);
+    
 
+    try {
+        const pokemonCountQuery = `SELECT COUNT(*) AS count FROM user_collection JOIN  user_collection_album ON user_collection_album.user_collection_album_id = user_collection.user_collection_album_id JOIN card ON user_collection.card_PK_id = card.card_PK_id
+        WHERE category = 'Pokemon' AND user_collection_album.user_id = ?`;
+        const pokemonCountRows = await queryAsync(pokemonCountQuery, [userId]);
+
+        if (pokemonCountRows.length > 0) {
+            const pokemonCount = pokemonCountRows[0].count;
+            res.locals.pokemonCount = pokemonCount;
+        } else {
+            console.error('No rows returned for pokemon count');
+            res.status(500).send('No rows returned for pokemon count');
+        }
+    } catch (error) {
+        console.error('Error fetching pokemon count:', error);
+        res.status(500).send('Error fetching normal variant count');
+    }
+    try {
+        const trainerCountQuery = `SELECT COUNT(*) AS count FROM user_collection JOIN  user_collection_album ON user_collection_album.user_collection_album_id = user_collection.user_collection_album_id JOIN card ON user_collection.card_PK_id = card.card_PK_id
+        WHERE category = 'Trainer' AND user_collection_album.user_id = ?`;
+        const trainerCountRows = await queryAsync(trainerCountQuery, [userId]);
+
+        if (trainerCountRows.length > 0) {
+            const trainerCount = trainerCountRows[0].count;
+            res.locals.trainerCount = trainerCount;
+        } else {
+            console.error('No rows returned for trainer count');
+            res.status(500).send('No rows returned for trainer ount');
+        }
+    } catch (error) {
+        console.error('Error fetching normal trainer count:', error);
+        res.status(500).send('Error fetching trainer count');
+    }
+    try {
+        const energyCountQuery = `SELECT COUNT(*) AS count FROM user_collection JOIN  user_collection_album ON user_collection_album.user_collection_album_id = user_collection.user_collection_album_id JOIN card ON user_collection.card_PK_id = card.card_PK_id
+        WHERE category = 'Energy' AND user_collection_album.user_id = ?`;
+        const energyCountRows = await queryAsync(energyCountQuery, [userId]);
+
+        if (energyCountRows.length > 0) {
+            const energyCount = energyCountRows[0].count;
+            res.locals.energyCount = energyCount;
+        } else {
+            console.error('No rows returned for energy count');
+            res.status(500).send('No rows returned for energy count');
+        }
+    } catch (error) {
+        console.error('Error fetching energy count:', error);
+        res.status(500).send('Error fetching energy count');
+    }
+   
+    try {
+        const commonCountQuery = `SELECT COUNT(*) AS count FROM user_collection JOIN  user_collection_album ON user_collection_album.user_collection_album_id = user_collection.user_collection_album_id JOIN card ON user_collection.card_PK_id = card.card_PK_id
+        WHERE rarity = 'Common' AND user_collection_album.user_id = ?`;
+        const commonCountRows = await queryAsync(commonCountQuery, [userId]);
+
+        if (commonCountRows.length > 0) {
+            const commonCount = commonCountRows[0].count;
+            res.locals.commonCount = commonCount;
+        } else {
+            console.error('No rows returned for common count');
+            res.status(500).send('No rows common for energy count');
+        }
+    } catch (error) {
+        console.error('Error fetching common count:', error);
+        res.status(500).send('Error fetching common count');
+    }
+    try {
+        const rareCountQuery = `SELECT COUNT(*) AS count FROM user_collection JOIN  user_collection_album ON user_collection_album.user_collection_album_id = user_collection.user_collection_album_id JOIN card ON user_collection.card_PK_id = card.card_PK_id
+        WHERE rarity = 'Rare' AND user_collection_album.user_id = ?`;
+        const rareCountRows = await queryAsync(rareCountQuery, [userId]);
+
+        if (rareCountRows.length > 0) {
+            const rareCount = rareCountRows[0].count;
+            res.locals.rareCount = rareCount;
+        } else {
+            console.error('No rows returned for rare count');
+            res.status(500).send('No rows returned for rare count');
+        }
+    } catch (error) {
+        console.error('Error fetching rare count:', error);
+        res.status(500).send('Error fetching rare count');
+    }
+    try {
+        const uncommonCountQuery = `SELECT COUNT(*) AS count FROM user_collection JOIN  user_collection_album ON user_collection_album.user_collection_album_id = user_collection.user_collection_album_id JOIN card ON user_collection.card_PK_id = card.card_PK_id
+        WHERE rarity = 'Uncommon' AND user_collection_album.user_id = ?`;
+        const uncommonCountRows = await queryAsync(uncommonCountQuery, [userId]);
+
+        if (uncommonCountRows.length > 0) {
+            const uncommonCount = uncommonCountRows[0].count;
+            res.locals.uncommonCount = uncommonCount;
+        } else {
+            console.error('No rows returned for rare count');
+            res.status(500).send('No rows returned for rare count');
+        }
+    } catch (error) {
+        console.error('Error fetching rare count:', error);
+        res.status(500).send('Error fetching rare count');
+    }
+    try {
+        const rareHoloCountQuery = `SELECT COUNT(*) AS count FROM user_collection JOIN  user_collection_album ON user_collection_album.user_collection_album_id = user_collection.user_collection_album_id JOIN card ON user_collection.card_PK_id = card.card_PK_id
+        WHERE rarity = 'Rare Holo' AND user_collection_album.user_id = ?`;
+        const rareHoloCountRows = await queryAsync(rareHoloCountQuery, [userId]);
+
+        if (rareHoloCountRows.length > 0) {
+            const rareHoloCount = rareHoloCountRows[0].count;
+            res.locals.rareHoloCount = rareHoloCount;
+        } else {
+            console.error('No rows returned for rare count');
+            res.status(500).send('No rows returned for rare count');
+        }
+    } catch (error) {
+        console.error('Error fetching rare count:', error);
+        res.status(500).send('Error fetching rare count');
+    }
+    try {
+        const rareHoloLVXCountQuery = `SELECT COUNT(*) AS count FROM user_collection JOIN  user_collection_album ON user_collection_album.user_collection_album_id = user_collection.user_collection_album_id JOIN card ON user_collection.card_PK_id = card.card_PK_id
+        WHERE rarity = 'Rare Holo LV.X' AND user_collection_album.user_id = ?`;
+        const rareHoloLVXCountRows = await queryAsync(rareHoloLVXCountQuery, [userId]);
+
+        if (rareHoloLVXCountRows.length > 0) {
+            const rareHoloLVXCount = rareHoloLVXCountRows[0].count;
+            res.locals.rareHoloLVXCount = rareHoloLVXCount;
+        } else {
+            console.error('No rows returned for rare count');
+            res.status(500).send('No rows returned for rare count');
+        }
+    } catch (error) {
+        console.error('Error fetching rare count:', error);
+        res.status(500).send('Error fetching rare count');
+    }
     res.render('dashboard', {
         user: req.session.userName,
         userCollection: res.locals.userCollection,
@@ -210,7 +337,15 @@ router.get('/dashboard', isAuthenticated, async (req, res) => {
         holoVarCount: res.locals.holoVariantCount,
         totalCount: res.locals.totalCount,
         uniqueCount: res.locals.uniqueCount,
-        seriesCount: res.locals.seriesCount
+        seriesCount: res.locals.seriesCount,
+        pokemonCount: res.locals.pokemonCount,
+        trainerCount: res.locals.trainerCount,
+        energyCount: res.locals.energyCount,
+        commonCount: res.locals.commonCount,
+        rareCount: res.locals.rareCount,
+        uncommonCount: res.locals.uncommonCount,
+        rareHoloCount: res.locals.rareHoloCount,
+        rareHoloLVXCount: res.locals.rareHoloLVXCount
     });
 });
 

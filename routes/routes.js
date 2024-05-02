@@ -846,17 +846,17 @@ async function insertCardsSetFromDpSeriesData(dpSeriesData) {
 } // end of insertCardsSetFromDpSeriesData(dpSeriesData) method
 
 // Handle the route FetchAndInsertData
-// router.get('/FetchAndInsertData', async (req, res) => {
-//     try {
-//         console.log('calling function fetchDataAndInsertIntoDB();');
-//         const result = await fetchDataAndInsertIntoDB();
-//         res.send(result);
+router.get('/FetchAndInsertData', async (req, res) => {
+    try {
+        console.log('calling function fetchDataAndInsertIntoDB();');
+        const result = await fetchDataAndInsertIntoDB();
+        res.send(result);
 
-//     } catch (error) {
-//         console.error('Error processing request:', error);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
+    } catch (error) {
+        console.error('Error processing request:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 
 router.use(fetchAllFromDatabase);
